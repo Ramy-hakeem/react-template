@@ -12,7 +12,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -23,24 +23,25 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [columnSizing, setColumnSizing] = useState({});
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    enableColumnResizing: true,
     columnResizeMode: "onChange", // or "onEnd"
-    onColumnSizingChange: setColumnSizing,
-    state: {
-      columnSizing,
+    defaultColumn: {
+      minSize: 60, // This enforces the minimum during resizing
+      size: 150, // Default size
+      maxSize: 500, // Maximum size
     },
+    columnResizeDirection: "ltr",
   });
-  console.log(table.getHeaderGroups());
+  console.log(
+    table.getHeaderGroups()[0].headers.map((header) => header.column.getSize()),
+  );
   return (
     <>
       <div className="overflow-hidden rounded-md border">
-        <Table>
+        <Table style={{ tableLayout: "fixed", width: "100%" }}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -51,7 +52,6 @@ export function DataTable<TData, TValue>({
                       style={{
                         position: "relative",
                         width: header.getSize(),
-                        minWidth: "20px",
                       }}
                     >
                       {header.isPlaceholder
@@ -68,9 +68,6 @@ export function DataTable<TData, TValue>({
                           className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-border hover:bg-primary/50 ${
                             header.column.getIsResizing() ? "bg-primary" : ""
                           }`}
-                          style={{
-                            transform: "translateX(50%)",
-                          }}
                         />
                       )}
                     </TableHead>

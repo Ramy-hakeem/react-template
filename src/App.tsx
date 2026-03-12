@@ -2,7 +2,6 @@ import { DataTable } from "./components/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast, Toaster } from "sonner"; // if you want to add toast notifications
 import { TableAction } from "./components/data-table/TableAction";
-import { TableCaption } from "./components/ui/table";
 
 export type Payment = {
   id: string;
@@ -29,6 +28,7 @@ const handleView = (payment: Payment) => {
 };
 const columns: ColumnDef<Payment>[] = [
   {
+    id: "status",
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -52,10 +52,12 @@ const columns: ColumnDef<Payment>[] = [
     },
   },
   {
+    id: "email",
     accessorKey: "email",
     header: "Email",
   },
   {
+    id: "amount",
     accessorKey: "amount",
     header: "Amount",
   },
