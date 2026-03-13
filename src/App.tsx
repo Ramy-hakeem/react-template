@@ -1,7 +1,8 @@
-import { DataTable } from "./components/data-table/DataTable";
+import { DataTable } from "./components/layout/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast, Toaster } from "sonner"; // if you want to add toast notifications
-import { TableAction } from "./components/data-table/TableAction";
+import { TableAction } from "./components/layout/data-table/TableAction";
+import { useState } from "react";
 
 export type Payment = {
   id: string;
@@ -64,7 +65,6 @@ const columns: ColumnDef<Payment>[] = [
   {
     id: "actions",
     header: "Actions",
-    size: 50,
     cell: ({ row }) => {
       return (
         <TableAction
@@ -83,7 +83,6 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 export default function App() {
-  // Use the `use` hook to read the promise
   const data: Payment[] = [
     {
       id: "728ed52f",
@@ -110,12 +109,24 @@ export default function App() {
       email: "example@gmail.com",
     },
   ];
-
-  // const columns = createColumns(handleEdit, handleDelete, handleView);
+  const [filteredData, setFilteredData] = useState<Payment[]>(data);
+  // Use the `use` hook to read the promise
+  function handleSearch(searchTerm: string) {
+    console.log("hello");
+    const results = data.filter((payment) =>
+      payment.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    setFilteredData(results);
+    toast?.success(`Found ${results.length} results for "${searchTerm}"`);
+  }
   return (
     <>
       <div className="container mx-auto py-10 scroll-auto">
-        <DataTable columns={columns} data={data} />
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          handleSearch={handleSearch}
+        />
       </div>
       <Toaster richColors position="bottom-left" />
     </>
