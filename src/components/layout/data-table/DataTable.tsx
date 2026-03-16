@@ -317,6 +317,7 @@ function DataTableComponent<TData>(
     </>
   );
 }
+// test for the data table component
 
 export const DataTable = forwardRef(DataTableComponent) as <TData>(
   props: DataTableProps<TData> & {
