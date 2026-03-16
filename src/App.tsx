@@ -1,3 +1,6 @@
+// Main App component - demonstrates Zustand state management
+// Refactored to use Zustand stores instead of local state for better scalability
+
 import { DataTable } from "./components/layout/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast, Toaster } from "sonner"; // if you want to add toast notifications
@@ -6,24 +9,28 @@ import { ZustandDemo } from "./components/ZustandDemo";
 import { PaymentForm } from "./components/PaymentForm";
 import { usePayments, type Payment } from "./lib/stores";
 
+// Handle edit action for a payment - shows toast notification
 const handleEdit = (payment: Payment) => {
   console.log("Edit payment:", payment);
   // Implement your edit logic here
   toast?.success(`Editing payment ${payment.id}`);
 };
 
+// Handle delete action for a payment
 const handleDelete = (payment: Payment) => {
   console.log("Delete payment:", payment);
   // Implement your delete logic here
   toast?.success(`Deleting payment ${payment.id}`);
 };
 
+// Handle view action for a payment
 const handleView = (payment: Payment) => {
   console.log("View payment:", payment);
   // Implement your view logic here
   toast?.success(`Viewing payment ${payment.id}`);
 };
 
+// Define table columns for the payment data table
 const columns: ColumnDef<Payment>[] = [
   {
     id: "status",
@@ -79,9 +86,12 @@ const columns: ColumnDef<Payment>[] = [
   },
 ];
 
+// Main App component
 export default function App() {
+  // Get filtered payments from Zustand store
   const { filteredPayments, setSearchTerm } = usePayments();
 
+  // Handle search input - updates store and shows result count
   function handleSearch(searchTerm: string) {
     setSearchTerm(searchTerm);
     toast?.success(`Found ${filteredPayments.length} results for "${searchTerm}"`);

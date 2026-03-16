@@ -1,3 +1,6 @@
+// PaymentForm component - allows users to add new payments to the Zustand store
+// Demonstrates integration with Zustand state management and form validation
+
 import { useState } from "react";
 import { usePayments } from "../lib/stores";
 import { Button } from "./ui/button";
@@ -6,21 +9,27 @@ import { Label } from "./ui/label";
 import { toast } from "sonner";
 
 export function PaymentForm() {
+  // Get addPayment action and loading state from Zustand store
   const { addPayment, isLoading } = usePayments();
+  
+  // Local form state
   const [formData, setFormData] = useState({
     email: "",
     amount: "",
     status: "pending" as const,
   });
 
+  // Handle form submission - validates and adds payment to store
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate form fields
     if (!formData.email || !formData.amount) {
       toast.error("Please fill in all fields");
       return;
     }
 
+    // Create new payment object with unique ID
     const newPayment = {
       id: crypto.randomUUID(),
       email: formData.email,

@@ -1,6 +1,11 @@
+// ZustandDemo component - Simple counter example demonstrating Zustand usage
+// Shows how to subscribe to store state and use actions
+
 import { useCounterStore } from "../lib/stores";
 
 export function ZustandDemo() {
+  // Subscribe to specific state slices from Zustand store
+  // Using selectors to prevent unnecessary re-renders
   const count = useCounterStore((state) => state.count);
   const increment = useCounterStore((state) => state.increment);
   const decrement = useCounterStore((state) => state.decrement);

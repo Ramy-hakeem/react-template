@@ -1,7 +1,14 @@
+// Zustand stores configuration
+// Centralized state management for the application with DevTools and persistence
+
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-// Types
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+// Payment type - represents a single payment in the system
 export interface Payment {
   id: string;
   amount: number;
@@ -9,6 +16,7 @@ export interface Payment {
   email: string;
 }
 
+// Counter store type definition - simple example store
 interface CounterState {
   count: number;
   increment: () => void;
@@ -17,6 +25,7 @@ interface CounterState {
   setCount: (count: number) => void;
 }
 
+// Payments store type definition - manages payment data with search/filter
 interface PaymentsState {
   payments: Payment[];
   searchTerm: string;
@@ -33,7 +42,11 @@ interface PaymentsState {
   setError: (error: string | null) => void;
 }
 
-// Counter Store (simple example)
+// ============================================================================
+// COUNTER STORE
+// ============================================================================
+// Simple counter store - demonstrates basic Zustand patterns
+// Uses DevTools middleware for debugging
 export const useCounterStore = create<CounterState>()(
   devtools(
     (set) => ({
@@ -47,11 +60,16 @@ export const useCounterStore = create<CounterState>()(
   )
 );
 
-// Payments Store (with persistence for demo)
+// ============================================================================
+// PAYMENTS STORE
+// ============================================================================
+// Payments store with data persistence and search/filter functionality
+// Uses DevTools for debugging and Persist middleware for localStorage
 export const usePaymentsStore = create<PaymentsState>()(
   devtools(
     persist(
       (set) => ({
+        // Initial payment data for demo
         payments: [
           {
             id: "728ed52f",
@@ -83,6 +101,7 @@ export const usePaymentsStore = create<PaymentsState>()(
         isLoading: false,
         error: null,
 
+        // Update search term and filter payments by email
         setSearchTerm: (term) => {
           set((state) => {
             const filtered = state.payments.filter((payment) =>
@@ -92,6 +111,7 @@ export const usePaymentsStore = create<PaymentsState>()(
           }, false, "setSearchTerm");
         },
 
+        // Add new payment to store and update filtered results
         addPayment: (payment) => {
           set((state) => ({
             payments: [...state.payments, payment],
@@ -103,6 +123,7 @@ export const usePaymentsStore = create<PaymentsState>()(
           }), false, "addPayment");
         },
 
+        // Update existing payment and refresh filtered results
         updatePayment: (id, updates) => {
           set((state) => {
             const updatedPayments = state.payments.map((payment) =>
@@ -119,6 +140,7 @@ export const usePaymentsStore = create<PaymentsState>()(
           }, false, "updatePayment");
         },
 
+        // Delete payment and update filtered results
         deletePayment: (id) => {
           set((state) => {
             const updatedPayments = state.payments.filter((p) => p.id !== id);

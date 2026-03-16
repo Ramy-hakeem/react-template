@@ -1,16 +1,20 @@
+// Custom hooks for payment operations and utilities
+// Provides additional functionality on top of Zustand store
+
 import { useEffect, useState } from "react";
 import { usePaymentsStore, type Payment } from "../lib/stores";
 
-// Custom hook for payment operations
+// Custom hook for async payment operations with error handling
 export function usePaymentActions() {
   const { addPayment, updatePayment, deletePayment, setLoading, setError } = usePaymentsStore();
 
+  // Create a new payment with async operation and error handling
   const createPayment = async (paymentData: Omit<Payment, 'id'>): Promise<Payment> => {
     try {
       setLoading(true);
       setError(null);
 
-      // Simulate API call
+      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const newPayment = {
@@ -29,12 +33,13 @@ export function usePaymentActions() {
     }
   };
 
+  // Remove payment with async operation
   const removePayment = async (id: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Simulate API call
+      // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
       deletePayment(id);
@@ -54,7 +59,7 @@ export function usePaymentActions() {
   };
 }
 
-// Custom hook for debounced search
+// Custom hook for debounced search - prevents excessive store updates
 export function useDebouncedSearch(delay: number = 300) {
   const { setSearchTerm } = usePaymentsStore();
   const [searchValue, setSearchValue] = useState("");
@@ -73,7 +78,8 @@ export function useDebouncedSearch(delay: number = 300) {
   };
 }
 
-// Custom hook for payment statistics
+// Custom hook for computing payment statistics
+// Memoizes calculations based on payments data
 export function usePaymentStats() {
   const payments = usePaymentsStore((state) => state.payments);
 
