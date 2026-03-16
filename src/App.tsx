@@ -5,7 +5,7 @@ import {
 import type { ColumnDef } from '@tanstack/react-table';
 import { toast, Toaster } from 'sonner'; // if you want to add toast notifications
 import { TableAction } from './components/layout/data-table/TableAction';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from './components/ui/button';
 
 export type Product = {
