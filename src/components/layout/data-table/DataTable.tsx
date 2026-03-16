@@ -114,6 +114,7 @@ function DataTableComponent<TData>(
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
   useEffect(() => {
+    console.log('Data changed:', { sortBy, searchTerm, pageIndex, pageSize });
     handleDataChange?.({ sortBy, searchTerm, pageIndex, pageSize });
   }, [sortBy, pageIndex, pageSize]);
 
@@ -157,14 +158,16 @@ function DataTableComponent<TData>(
 
     return pages;
   };
+  console.log('pageIndex', pageIndex);
   return (
     <>
       <Searchbar
         className="w-1/4"
         onClick={
           handleDataChange
-            ? () =>
-                handleDataChange({ sortBy, searchTerm, pageIndex, pageSize })
+            ? () => {
+                table.setPageIndex(0); // Reset to first page on new search
+              }
             : undefined
         }
         searchTerm={searchTerm}

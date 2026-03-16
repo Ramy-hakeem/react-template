@@ -37,7 +37,6 @@ export default function Searchbar({
             onClick={(e) => {
               e.preventDefault();
               onClick?.(searchTerm);
-              setSearchTerm('');
             }}
             type={'submit'}
             variant="outline"
