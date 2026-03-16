@@ -144,3 +144,4 @@ export function DataTable<TData, TValue>({
     </>
   );
 }
+// test for the data table component
