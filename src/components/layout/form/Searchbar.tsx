@@ -1,21 +1,29 @@
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
+import { Field } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 export default function Searchbar({
   className,
   onClick,
+  searchTerm,
+  setSearchTerm,
 }: {
   className?: string;
   onClick?: (searchTerm: string) => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
 }) {
-  const [searchTerm, setSearchTerm] = useState("");
+  if (!onClick) return null;
+  if (searchTerm === undefined || setSearchTerm === undefined) {
+    throw new Error(
+      "Both 'searchTerm' and 'setSearchTerm' must be provided to enable the search feature.",
+    );
+  }
   return (
     <form>
-      <Field className={cn(className, "mb-4")}>
+      <Field className={cn(className, 'mb-4')}>
         <ButtonGroup>
           <Input
             value={searchTerm}
@@ -30,7 +38,7 @@ export default function Searchbar({
               e.preventDefault();
               onClick?.(searchTerm);
             }}
-            type={"submit"}
+            type={'submit'}
             variant="outline"
           >
             Search
