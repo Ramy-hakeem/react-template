@@ -1,80 +1,67 @@
-import { DataTable } from "./components/layout/data-table/DataTable";
-import type { ColumnDef } from "@tanstack/react-table";
-import { toast, Toaster } from "sonner"; // if you want to add toast notifications
-import { TableAction } from "./components/layout/data-table/TableAction";
-import { useState } from "react";
+import {
+  DataTable,
+  type DataTableRef,
+} from './components/layout/data-table/DataTable';
+import type { ColumnDef } from '@tanstack/react-table';
+import { toast, Toaster } from 'sonner'; // if you want to add toast notifications
+import { TableAction } from './components/layout/data-table/TableAction';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from './components/ui/button';
 
-export type Payment = {
+export type Product = {
   id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
+  price: number;
+  title: string;
+  slug: string;
 };
-const handleEdit = (payment: Payment) => {
-  console.log("Edit payment:", payment);
+
+const handleEdit = (payment: Product) => {
+  console.log('Edit payment:', payment);
   // Implement your edit logic here
   toast?.success(`Editing payment ${payment.id}`);
 };
 
-const handleDelete = (payment: Payment) => {
-  console.log("Delete payment:", payment);
+const handleDelete = (payment: Product) => {
+  console.log('Delete payment:', payment);
   // Implement your delete logic here
   toast?.success(`Deleting payment ${payment.id}`);
 };
 
-const handleView = (payment: Payment) => {
-  console.log("View payment:", payment);
+const handleView = (payment: Product) => {
+  console.log('View payment:', payment);
   // Implement your view logic here
   toast?.success(`Viewing payment ${payment.id}`);
 };
-const columns: ColumnDef<Payment>[] = [
+const columns: ColumnDef<Product>[] = [
   {
-    id: "status",
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-
-      // Define color mapping for each status
-      const colorMap: Record<string, string> = {
-        pending: "orange",
-        processing: "blue",
-        success: "green",
-        failed: "red",
-      };
-
-      const color = colorMap[status] || "gray";
-
-      return (
-        <p className="font-medium" style={{ color: color }}>
-          {status}
-        </p>
-      );
-    },
+    id: 'status',
+    accessorKey: 'title',
+    header: 'Title',
   },
   {
-    id: "email",
-    accessorKey: "email",
-    header: "Email",
+    id: 'slug',
+    accessorKey: 'slug',
+    header: 'Slug',
   },
   {
-    id: "amount",
-    accessorKey: "amount",
-    header: "Amount",
+    id: 'amount',
+    accessorKey: 'price',
+    header: 'Price',
   },
   {
-    id: "actions",
-    header: "Actions",
+    id: 'actions',
+    header: 'Actions',
+    enablePinning: true,
     cell: ({ row }) => {
       return (
         <TableAction
           actions={[
-            { label: "Edit", onClick: () => handleEdit(row.original) },
+            { label: 'Edit', onClick: () => handleEdit(row.original) },
             {
               label: <p className="text-red-900">Delete</p>,
               onClick: () => handleDelete(row.original),
             },
-            { label: "View", onClick: () => handleView(row.original) },
+            { label: 'View', onClick: () => handleView(row.original) },
           ]}
         />
       );
@@ -83,51 +70,39 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 export default function App() {
-  const data: Payment[] = [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    {
-      id: "489e1d42",
-      amount: 125,
-      status: "processing",
-      email: "example@gmail.com",
-    },
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "success",
-      email: "m@example.com",
-    },
-    {
-      id: "489e1d42",
-      amount: 125,
-      status: "failed",
-      email: "example@gmail.com",
-    },
-  ];
-  const [filteredData, setFilteredData] = useState<Payment[]>(data);
+  const [data, setData] = useState<Product[]>([]);
+  const gridRef = useRef<DataTableRef>(null);
+
   // Use the `use` hook to read the promise
-  function handleSearch(searchTerm: string) {
-    console.log("hello");
-    const results = data.filter((payment) =>
-      payment.email.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-    setFilteredData(results);
-    toast?.success(`Found ${results.length} results for "${searchTerm}"`);
+  function refreshData() {
+    gridRef.current?.refresh();
   }
+
   return (
     <>
+      <div className="flex flex-col  justify-around my-10 items-center gap-4 ">
+        <h1>GET THE MAIN DATA</h1>
+        <Button onClick={refreshData} className="mb-4">
+          Refresh Data
+        </Button>
+      </div>
       <div className="container mx-auto py-10 scroll-auto">
-        <DataTable
+        <DataTable<Product>
+          ref={gridRef}
           columns={columns}
-          data={filteredData}
-          handleSearch={handleSearch}
+          data={data}
+          numberOfPages={5}
+          handleDataChange={async (data) => {
+            const response = await fetch(
+              `https://api.escuelajs.co/api/v1/products?limit=${data.pageSize}&offset=${data.pageIndex * data.pageSize}&price=${data.searchTerm}`,
+            );
+            const res = await response.json();
+            console.log(res);
+            setData(res);
+          }}
         />
       </div>
+
       <Toaster richColors position="bottom-left" />
     </>
   );

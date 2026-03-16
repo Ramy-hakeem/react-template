@@ -1,4 +1,5 @@
 {
+  "exclude": ["node_modules", "dist", "build", ".next"],
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
