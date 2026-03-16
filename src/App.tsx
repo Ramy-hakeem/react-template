@@ -2,10 +2,14 @@ import { DataTable } from "./components/layout/data-table/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast, Toaster } from "sonner"; // if you want to add toast notifications
 import { TableAction } from "./components/layout/data-table/TableAction";
-import { ZustandDemo } from "./components/ZustandDemo";
-import { PaymentForm } from "./components/PaymentForm";
-import { usePayments, type Payment } from "./lib/stores";
+import { useState } from "react";
 
+export type Payment = {
+  id: string;
+  amount: number;
+  status: "pending" | "processing" | "success" | "failed";
+  email: string;
+};
 const handleEdit = (payment: Payment) => {
   console.log("Edit payment:", payment);
   // Implement your edit logic here
@@ -23,7 +27,6 @@ const handleView = (payment: Payment) => {
   // Implement your view logic here
   toast?.success(`Viewing payment ${payment.id}`);
 };
-
 const columns: ColumnDef<Payment>[] = [
   {
     id: "status",
@@ -80,21 +83,48 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 export default function App() {
-  const { filteredPayments, setSearchTerm } = usePayments();
-
+  const data: Payment[] = [
+    {
+      id: "728ed52f",
+      amount: 100,
+      status: "pending",
+      email: "m@example.com",
+    },
+    {
+      id: "489e1d42",
+      amount: 125,
+      status: "processing",
+      email: "example@gmail.com",
+    },
+    {
+      id: "728ed52f",
+      amount: 100,
+      status: "success",
+      email: "m@example.com",
+    },
+    {
+      id: "489e1d42",
+      amount: 125,
+      status: "failed",
+      email: "example@gmail.com",
+    },
+  ];
+  const [filteredData, setFilteredData] = useState<Payment[]>(data);
+  // Use the `use` hook to read the promise
   function handleSearch(searchTerm: string) {
-    setSearchTerm(searchTerm);
-    toast?.success(`Found ${filteredPayments.length} results for "${searchTerm}"`);
+    console.log("hello");
+    const results = data.filter((payment) =>
+      payment.email.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    setFilteredData(results);
+    toast?.success(`Found ${results.length} results for "${searchTerm}"`);
   }
-
   return (
     <>
       <div className="container mx-auto py-10 scroll-auto">
-        <ZustandDemo />
-        <PaymentForm />
         <DataTable
           columns={columns}
-          data={filteredPayments}
+          data={filteredData}
           handleSearch={handleSearch}
         />
       </div>
