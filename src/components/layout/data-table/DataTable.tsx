@@ -1,3 +1,6 @@
+// DataTable component - Reusable table component with sorting functionality
+// Uses TanStack React Table for table logic and customizable column definitions
+
 import {
   Table,
   TableBody,
@@ -326,6 +329,7 @@ function DataTableComponent<TData>(
     </>
   );
 }
+// test for the data table component
 
 export const DataTable = forwardRef(DataTableComponent) as <TData>(
   props: DataTableProps<TData> & {

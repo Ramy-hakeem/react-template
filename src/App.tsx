@@ -1,3 +1,6 @@
+// Main App component - demonstrates Zustand state management
+// Refactored to use Zustand stores instead of local state for better scalability
+
 import {
   DataTable,
   type DataTableRef,
@@ -5,48 +8,68 @@ import {
 import type { ColumnDef } from '@tanstack/react-table';
 import { toast, Toaster } from 'sonner'; // if you want to add toast notifications
 import { TableAction } from './components/layout/data-table/TableAction';
+import { ZustandDemo } from './components/ZustandDemo';
+import { PaymentForm } from './components/PaymentForm';
+import { usePayments, type Payment } from './lib/stores';
 import { useRef, useState } from 'react';
 import { Button } from './components/ui/button';
 
-export type Product = {
-  id: string;
-  price: number;
-  title: string;
-  slug: string;
-};
-
-const handleEdit = (payment: Product) => {
+// Handle edit action for a payment - shows toast notification
+const handleEdit = (payment: Payment) => {
   console.log('Edit payment:', payment);
   // Implement your edit logic here
   toast?.success(`Editing payment ${payment.id}`);
 };
 
-const handleDelete = (payment: Product) => {
+// Handle delete action for a payment
+const handleDelete = (payment: Payment) => {
   console.log('Delete payment:', payment);
   // Implement your delete logic here
   toast?.success(`Deleting payment ${payment.id}`);
 };
 
-const handleView = (payment: Product) => {
+// Handle view action for a payment
+const handleView = (payment: Payment) => {
   console.log('View payment:', payment);
   // Implement your view logic here
   toast?.success(`Viewing payment ${payment.id}`);
 };
-const columns: ColumnDef<Product>[] = [
+
+// Define table columns for the payment data table
+const columns: ColumnDef<Payment>[] = [
   {
     id: 'status',
-    accessorKey: 'title',
-    header: 'Title',
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const status = row.getValue('status') as string;
+
+      // Define color mapping for each status
+      const colorMap: Record<string, string> = {
+        pending: 'orange',
+        processing: 'blue',
+        success: 'green',
+        failed: 'red',
+      };
+
+      const color = colorMap[status] || 'gray';
+
+      return (
+        <p className="font-medium" style={{ color: color }}>
+          {status}
+        </p>
+      );
+    },
   },
   {
-    id: 'slug',
-    accessorKey: 'slug',
-    header: 'Slug',
+    id: 'email',
+    accessorKey: 'email',
+    header: 'Email',
   },
   {
     id: 'amount',
-    accessorKey: 'price',
-    header: 'Price',
+    accessorKey: 'amount',
+    header: 'Amount',
   },
   {
     id: 'actions',
@@ -69,29 +92,39 @@ const columns: ColumnDef<Product>[] = [
   },
 ];
 
+// Main App component
 export default function App() {
-  const [data, setData] = useState<Product[]>([]);
+  const { filteredPayments, setSearchTerm } = usePayments();
   const gridRef = useRef<DataTableRef>(null);
 
-  // Use the `use` hook to read the promise
+  // Refresh data - resets pagination and filters
   function refreshData() {
     gridRef.current?.refresh();
   }
 
+  // Handle search input - updates store and shows result count
+  function handleSearch(searchTerm: string) {
+    setSearchTerm(searchTerm);
+    toast?.success(`Found ${filteredPayments.length} results for "${searchTerm}"`);
+  }
+
   return (
     <>
-      <div className="flex flex-col  justify-around my-10 items-center gap-4 ">
+      <div className="flex flex-col justify-around my-10 items-center gap-4 ">
         <h1>GET THE MAIN DATA</h1>
         <Button onClick={refreshData} className="mb-4">
           Refresh Data
         </Button>
       </div>
       <div className="container mx-auto py-10 scroll-auto">
-        <DataTable<Product>
+        <ZustandDemo />
+        <PaymentForm />
+        <DataTable
           ref={gridRef}
           columns={columns}
-          data={data}
+          data={filteredPayments}
           numberOfPages={5}
+          handleSearch={handleSearch}
           handleDataChange={async (data) => {
             console.log('Data changed:', data.searchTerm);
             const response = await fetch(
