@@ -125,6 +125,15 @@ export default function App() {
           data={filteredPayments}
           numberOfPages={5}
           handleSearch={handleSearch}
+          handleDataChange={async (data) => {
+            console.log('Data changed:', data.searchTerm);
+            const response = await fetch(
+              `https://api.escuelajs.co/api/v1/products?limit=${data.pageSize}&offset=${data.pageIndex * data.pageSize}&price=${data.searchTerm}`,
+            );
+            const res = await response.json();
+            console.log(res);
+            setData(res);
+          }}
         />
       </div>
 
