@@ -113,6 +113,7 @@ function DataTableComponent<TData>(
   );
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
+
   useEffect(() => {
     console.log('Data changed:', { sortBy, searchTerm, pageIndex, pageSize });
     handleDataChange?.({ sortBy, searchTerm, pageIndex, pageSize });
@@ -158,7 +159,6 @@ function DataTableComponent<TData>(
 
     return pages;
   };
-  console.log('pageIndex', pageIndex);
   return (
     <>
       <Searchbar
@@ -166,7 +166,16 @@ function DataTableComponent<TData>(
         onClick={
           handleDataChange
             ? () => {
-                table.setPageIndex(0); // Reset to first page on new search
+                if (pageIndex !== 0) {
+                  table.setPageIndex(0); // Reset to first page on new search
+                } else {
+                  handleDataChange({
+                    sortBy,
+                    searchTerm,
+                    pageIndex: 0,
+                    pageSize,
+                  });
+                }
               }
             : undefined
         }
@@ -269,8 +278,7 @@ function DataTableComponent<TData>(
       </div>
       <div className="flex items-center justify-between px-2 mt-2">
         <p className="text-sm text-nowrap" data-slot="pagination-info">
-          page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()}
+          page {table.getState().pagination.pageIndex + 1} of {numberOfPages}
         </p>
         <Pagination>
           <PaginationContent>
@@ -305,7 +313,8 @@ function DataTableComponent<TData>(
               <PaginationNext
                 onClick={() => table.nextPage()}
                 className={
-                  !table.getCanNextPage()
+                  pageIndex >=
+                  (numberOfPages ? numberOfPages - 1 : table.getPageCount() - 1)
                     ? 'pointer-events-none opacity-50'
                     : 'cursor-pointer'
                 }
