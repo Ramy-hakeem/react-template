@@ -9,11 +9,13 @@ export default function Searchbar({
   onClick,
   searchTerm,
   setSearchTerm,
+  isLoading,
 }: {
   className?: string;
   onClick?: (searchTerm: string) => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  isLoading?: boolean;
 }) {
   if (!onClick) return null;
   if (searchTerm === undefined || setSearchTerm === undefined) {
@@ -34,6 +36,7 @@ export default function Searchbar({
             placeholder="Type to search..."
           />
           <Button
+            disabled={isLoading}
             onClick={(e) => {
               e.preventDefault();
               onClick?.(searchTerm);

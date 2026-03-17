@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,14 +6,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import type { JSX } from "react";
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal } from 'lucide-react';
+import type { Action } from './types';
 
-type Action = {
-  label: string | JSX.Element;
-  onClick: () => void;
-};
 export const TableAction = ({ actions }: { actions: Action[] }) => {
   return (
     <DropdownMenu>
