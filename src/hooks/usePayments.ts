@@ -1,21 +1,24 @@
 // Custom hooks for payment operations and utilities
 // Provides additional functionality on top of Zustand store
 
-import { useEffect, useState } from "react";
-import { usePaymentsStore, type Payment } from "../lib/stores";
+import { useEffect, useState } from 'react';
+import { usePaymentsStore, type Payment } from '../store/stores';
 
 // Custom hook for async payment operations with error handling
 export function usePaymentActions() {
-  const { addPayment, updatePayment, deletePayment, setLoading, setError } = usePaymentsStore();
+  const { addPayment, updatePayment, deletePayment, setLoading, setError } =
+    usePaymentsStore();
 
   // Create a new payment with async operation and error handling
-  const createPayment = async (paymentData: Omit<Payment, 'id'>): Promise<Payment> => {
+  const createPayment = async (
+    paymentData: Omit<Payment, 'id'>,
+  ): Promise<Payment> => {
     try {
       setLoading(true);
       setError(null);
 
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const newPayment = {
         ...paymentData,
@@ -25,7 +28,8 @@ export function usePaymentActions() {
       addPayment(newPayment);
       return newPayment;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create payment';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create payment';
       setError(message);
       throw error;
     } finally {
@@ -40,11 +44,12 @@ export function usePaymentActions() {
       setError(null);
 
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       deletePayment(id);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete payment';
+      const message =
+        error instanceof Error ? error.message : 'Failed to delete payment';
       setError(message);
       throw error;
     } finally {
@@ -62,7 +67,7 @@ export function usePaymentActions() {
 // Custom hook for debounced search - prevents excessive store updates
 export function useDebouncedSearch(delay: number = 300) {
   const { setSearchTerm } = usePaymentsStore();
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,12 +90,15 @@ export function usePaymentStats() {
 
   const stats = {
     total: payments.length,
-    pending: payments.filter(p => p.status === 'pending').length,
-    processing: payments.filter(p => p.status === 'processing').length,
-    success: payments.filter(p => p.status === 'success').length,
-    failed: payments.filter(p => p.status === 'failed').length,
+    pending: payments.filter((p) => p.status === 'pending').length,
+    processing: payments.filter((p) => p.status === 'processing').length,
+    success: payments.filter((p) => p.status === 'success').length,
+    failed: payments.filter((p) => p.status === 'failed').length,
     totalAmount: payments.reduce((sum, p) => sum + p.amount, 0),
-    averageAmount: payments.length > 0 ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length : 0,
+    averageAmount:
+      payments.length > 0
+        ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length
+        : 0,
   };
 
   return stats;
