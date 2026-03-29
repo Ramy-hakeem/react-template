@@ -2,48 +2,55 @@
 // Demonstrates integration with Zustand state management and form validation
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { usePayments } from "../lib/stores";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 
+// Validation schema
+const paymentSchema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Email required"),
+  amount: yup.number().positive("Amount must be positive").required("Amount required"),
+});
+
+type PaymentFormData = yup.InferType<typeof paymentSchema>
+type PaymentStatus = "pending" | "processing" | "success" | "failed";
+
 export function PaymentForm() {
   // Get addPayment action and loading state from Zustand store
   const { addPayment, isLoading } = usePayments();
   
-  // Local form state
-  const [formData, setFormData] = useState({
-    email: "",
-    amount: "",
-    status: "pending" as const,
+  // Form setup with Yup validation
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<PaymentFormData>({
+    resolver: yupResolver(paymentSchema),
+    defaultValues: { email: "", amount: 0 },
   });
 
-  // Handle form submission - validates and adds payment to store
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Local status state
+  const [status, setStatus] = useState<PaymentStatus>("pending");
 
-    // Validate form fields
-    if (!formData.email || !formData.amount) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
+  // Handle form submission - called only if validation passes
+  const onSubmit = (data: PaymentFormData) => {
     // Create new payment object with unique ID
     const newPayment = {
       id: crypto.randomUUID(),
-      email: formData.email,
-      amount: Number(formData.amount),
-      status: formData.status,
+      email: data.email,
+      amount: data.amount,
+      status: status,
     };
 
     addPayment(newPayment);
-    setFormData({ email: "", amount: "", status: "pending" });
+    reset();
+    setStatus("pending");
     toast.success("Payment added successfully!");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-lg">
       <h3 className="text-lg font-semibold">Add New Payment</h3>
 
       <div className="space-y-2">
@@ -51,11 +58,12 @@ export function PaymentForm() {
         <Input
           id="email"
           type="email"
-          value={formData.email}
-          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+          {...register("email")}
           placeholder="user@example.com"
           disabled={isLoading}
+          className={errors.email ? "border-red-500" : ""}
         />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-2">
@@ -63,19 +71,20 @@ export function PaymentForm() {
         <Input
           id="amount"
           type="number"
-          value={formData.amount}
-          onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+          {...register("amount", { valueAsNumber: true })}
           placeholder="100"
           disabled={isLoading}
+          className={errors.amount ? "border-red-500" : ""}
         />
+        {errors.amount && <p className="text-red-500 text-sm">{errors.amount.message}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
         <select
           id="status"
-          value={formData.status}
-          onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+          value={status}
+          onChange={(e) => setStatus(e.target.value as PaymentStatus)}
           className="w-full p-2 border rounded"
           disabled={isLoading}
         >
