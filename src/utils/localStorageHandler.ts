@@ -4,14 +4,19 @@ export const getState = (itemName: string) => {
     if (serializedState === null) {
       return undefined;
     }
-    return JSON.parse(serializedState);
-  } catch (error) {
-    console.error(`failed to get ${itemName} from the local Storage: `, error);
+    try {
+      // Try to parse as JSON
+      return JSON.parse(serializedState);
+    } catch {
+      return serializedState;
+    }
+  } catch (e) {
+    console.error(`failed to get ${itemName} from the local Storage: `, e);
     return undefined;
   }
 };
 
-export const addState = (state: unknown, itemName: string) => {
+export const addState = (itemName: string, state: unknown) => {
   try {
     const serializedState = JSON.stringify(state);
     localStorage.setItem(itemName, serializedState);

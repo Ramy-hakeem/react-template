@@ -1,7 +1,6 @@
 export interface LoginRequest {
   userName: string;
   password: string;
-  deviceId: string;
   forceLogin: boolean;
 }
 export interface LoginResponse {

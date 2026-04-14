@@ -33,3 +33,8 @@ export interface AxiosBaseQueryError {
 export type AxiosBaseQueryResult<D> =
   | AxiosBaseQuerySuccess<D>
   | AxiosBaseQueryError;
+
+export type FailedRequest = {
+  resolve: (token: string) => void;
+  reject: (error: AxiosBaseQueryError) => void;
+};

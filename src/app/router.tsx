@@ -1,0 +1,38 @@
+// src/router/index.tsx
+import { createBrowserRouter } from 'react-router-dom';
+import RootLayout from '@/components/layout/root-layout/RootLayout';
+import LoginPage from '@/features/auth/pages/LoginPage';
+import NotFoundPage from '@/components/layout/not-found/NotFoundPage';
+import Providers from './providers';
+
+export const router = createBrowserRouter([
+  {
+    // Public routes wrapper (no auth required)
+    element: <RootLayout />,
+    errorElement: <NotFoundPage />,
+    children: [
+      {
+        path: '/',
+        element: <div>Home Page</div>,
+      },
+      {
+        path: 'login',
+        element: <LoginPage />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
+      },
+      // Protected routes group
+      {
+        element: <Providers />,
+        children: [
+          {
+            path: 'profile',
+            element: <div>Profile Page</div>,
+          },
+        ],
+      },
+    ],
+  },
+]);

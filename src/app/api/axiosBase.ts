@@ -1,14 +1,18 @@
-import { getState } from '@/utils/localStorageHandler';
+import { addState, getState } from '@/utils/localStorageHandler';
 import axios from 'axios';
 import { msgs } from './messages.ts';
 import { toast } from 'sonner';
+import UUID from '@/utils/generateUUID.ts';
 
 // create axios client
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-//
 apiClient.interceptors.request.use(
   (config) => {
     if (config.headers?.skipAuth) {
@@ -18,6 +22,18 @@ apiClient.interceptors.request.use(
     const token = getState('user_data')?.access_token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    const idempotentMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
+    const method = config.method?.toUpperCase(); // This could be undefined
+    if (!getState('uuid')) {
+      addState('uuid', UUID());
+    }
+    if (idempotentMethods.includes(method || '')) {
+      const idempotencyKey = getState('uuid');
+      config.headers.set(
+        'X-Idempotency-Key',
+        idempotencyKey + config.url?.replace(/\//g, '-'),
+      );
     }
     return config;
   },
