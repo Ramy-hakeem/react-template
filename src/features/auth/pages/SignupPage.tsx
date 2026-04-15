@@ -1,29 +1,34 @@
-// src/features/auth/pages/SignupPage.tsx
-import { useFormWithStore } from '@/hooks/useFormWithStore';
 import { Link } from 'react-router-dom';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { signupSchema, type SignupFormData } from '../validationSchemas';
+import { signupSchema } from '../validationSchemas';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod/dist/zod.js';
+import type { SignupFormData } from '../type';
+import { useSignup } from '../api';
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useFormWithStore(
-    signupSchema,
-    {
+  const { data, isPending, isSuccess, mutateAsync: signup } = useSignup();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
       userName: '',
       email: '',
       password: '',
       confirmPassword: '',
     },
-    (data: SignupFormData) => {
-      // For now, just log (API integration later)
-      console.log('Signup data:', data);
-      alert('Signup successful! (Demo - data stored in store)');
-    }
-  );
-
+  });
+  function onSubmit(data: SignupFormData) {
+    const { confirmPassword: _, ...payload } = data;
+    payload.Name = 'Ramy';
+    signup(payload);
+  }
   return (
     <div className="flex justify-center items-center w-full h-full">
       <div className="w-full max-w-md">
@@ -35,7 +40,7 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {errors.root && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
@@ -182,7 +187,7 @@ export default function SignupPage() {
               disabled={isSubmitting}
               className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? (
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing up...
@@ -196,10 +201,7 @@ export default function SignupPage() {
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link
-                to="/login"
-                className="text-blue-600 hover:text-blue-500"
-              >
+              <Link to="/login" className="text-blue-600 hover:text-blue-500">
                 Sign in
               </Link>
             </p>
