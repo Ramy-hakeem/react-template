@@ -1,8 +1,7 @@
-// src/features/auth/pages/LoginPage.tsx (Enhanced with more validation and features)
-import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { useLogin } from '../api';
 import type { LoginRequest } from '../type';
 

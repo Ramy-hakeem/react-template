@@ -37,6 +37,7 @@ export const useLogin = () => {
   });
 };
 
+// Refresh Token
 const getRefreshToken = createApi<undefined, { token: string }>({
   url: '/api/Authentication/RefreshToken',
   method: 'POST',
@@ -70,6 +71,23 @@ export const useSignup = () => {
       const response = await signup(credentials);
       console.log(response);
       return response;
+// Get Current User
+const getUser = createApi<LoginRequest, LoginResponse>({
+  url: '/api/Account/GetCurrentUser',
+  method: 'GET',
+});
+
+export const useGetCurrentUser = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await getUser();
+      if (response.isSuccess) {
+        console.log(response.data);
+        return response.data;
+      } else {
+        // Handle error
+        return null;
+      }
     },
   });
 };

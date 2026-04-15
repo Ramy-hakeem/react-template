@@ -1,23 +1,25 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import path from "path";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [["babel-plugin-react-compiler"]],
+        plugins: [['babel-plugin-react-compiler']],
       },
     }),
     tailwindcss(),
+    basicSsl(),
   ],
+
   resolve: {
     alias: {
-      // Example alias
-      "@": path.resolve(__dirname, "src"),
-      "@components": path.resolve(__dirname, "src/components"),
-      "@utils": path.resolve(__dirname, "src/utils"),
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
     },
   },
 });
