@@ -48,8 +48,15 @@ apiClient.interceptors.request.use(
 // Refresh token logic - called automatically when a request fails with 401
 const refreshAuthLogic = async () => {
   try {
-    const response = await apiClient.post('/api/Authentication/RefreshToken');
-    console.log('hello ya Bro', response.data.data.token);
+    const response = await apiClient.post(
+      '/api/Authentication/RefreshToken',
+      {},
+      {
+        headers: {
+          'X-Idempotency-Key': UUID() + '-refresh-token-' + Date.now(),
+        },
+      },
+    );
 
     // Extract new access token from response (adjust based on your API response structure)
     const newAccessToken = response.data.data.token;

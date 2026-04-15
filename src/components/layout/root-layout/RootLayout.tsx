@@ -41,8 +41,8 @@ export default function RootLayout() {
 
             {/* User Actions */}
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
-                Sign In
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">Sign In</Link>
               </Button>
               <Button size="sm">Sign Up</Button>
             </div>
