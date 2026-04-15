@@ -11,25 +11,21 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export default function AuthProvider({
-  children,
-  requiredRole,
-  redirectTo = '/login',
-}: ProtectedRouteProps) {
+export default function AuthProvider({ children }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuthStore();
-  const { mutateAsync: refreshAccessToken, isPending } = useRefreshToken();
+  const {
+    mutateAsync: refreshAccessToken,
+    isPending,
+    isSuccess,
+  } = useRefreshToken();
+  console.log('isSuccess', isSuccess);
   const location = useLocation();
   useEffect(() => {
     if (!isAuthenticated && !isPending) {
       refreshAccessToken();
     }
   }, []);
-  console.log(
-    'AuthProvider - isAuthenticated:',
-    isAuthenticated,
-    'isPending:',
-    isPending,
-  );
+
   // Show loading spinner while checking authentication
   if (isPending) {
     return (
@@ -40,8 +36,8 @@ export default function AuthProvider({
   }
 
   // Not authenticated - redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  if (!isAuthenticated && isSuccess) {
+    return <Navigate to={'/login'} state={{ from: location }} replace />;
   }
 
   // // Check role requirement

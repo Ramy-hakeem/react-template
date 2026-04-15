@@ -4,6 +4,7 @@ import RootLayout from '@/components/layout/root-layout/RootLayout';
 import LoginPage from '@/features/auth/pages/LoginPage';
 import NotFoundPage from '@/components/layout/not-found/NotFoundPage';
 import Providers from './providers';
+import Profile from '@/features/users/pages/Profile';
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'profile',
-            element: <div>Profile Page</div>,
+            element: <Profile />,
           },
         ],
       },

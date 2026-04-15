@@ -1,3 +1,5 @@
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+
 // Input type
 export interface AxiosBaseQueryArgs<
   T = Record<string, unknown>,

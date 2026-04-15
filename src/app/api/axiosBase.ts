@@ -3,6 +3,8 @@ import axios from 'axios';
 import { msgs } from './messages.ts';
 import { toast } from 'sonner';
 import UUID from '@/utils/generateUUID.ts';
+import { useAuthStore } from '@/features/auth/authStore.ts';
+import type { FailedToken } from './types.ts';
 
 // create axios client
 export const apiClient = axios.create({
@@ -19,12 +21,12 @@ apiClient.interceptors.request.use(
       delete config.headers.skipAuth;
       return config;
     }
-    const token = getState('user_data')?.access_token;
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     const idempotentMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    const method = config.method?.toUpperCase(); // This could be undefined
+    const method = config.method?.toUpperCase();
     if (!getState('uuid')) {
       addState('uuid', UUID());
     }
@@ -43,13 +45,14 @@ apiClient.interceptors.request.use(
   },
 );
 
+// Refresh token logic - called automatically when a request fails with 401
+
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('this is response ', response);
     // check for auth error
-    if (response.data?.RESULT_CODE === 401) {
-      throw new Error('ERROR:AUTHENTICATION');
-    }
+    // if (response.data?.RESULT_CODE === 401) {
+    //   throw new Error('ERROR:AUTHENTICATION');
+    // }
     return response;
   },
   (error) => {
