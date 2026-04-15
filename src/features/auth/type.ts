@@ -1,3 +1,6 @@
+import type z from 'zod';
+import type { signupSchema } from './validationSchemas';
+
 export interface LoginRequest {
   userName: string;
   password: string;
@@ -13,3 +16,5 @@ export interface LoginResponse {
   isNotAllowed: boolean;
   anotherDeviceLoggedIn: boolean;
 }
+export type SignupFormData = z.infer<typeof signupSchema>;
+export type SignupPayload = Omit<SignupFormData, 'confirmPassword'>;

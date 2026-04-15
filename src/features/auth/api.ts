@@ -1,5 +1,5 @@
 import createApi from '@/app/api/axiosBaseQuery';
-import type { LoginRequest, LoginResponse } from './type';
+import type { LoginRequest, LoginResponse, SignupPayload } from './type';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from './authStore';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -60,6 +60,17 @@ export const useRefreshToken = () => {
   });
 };
 
+const signup = createApi<SignupPayload, null>({
+  url: '/api/Authentication/CreateUser',
+  method: 'POST',
+});
+
+export const useSignup = () => {
+  return useMutation({
+    mutationFn: async (credentials: SignupPayload) => {
+      const response = await signup(credentials);
+      console.log(response);
+      return response;
 // Get Current User
 const getUser = createApi<LoginRequest, LoginResponse>({
   url: '/api/Account/GetCurrentUser',
