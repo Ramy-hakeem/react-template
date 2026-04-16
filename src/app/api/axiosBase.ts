@@ -52,7 +52,9 @@ const refreshAuthLogic = async () => {
       '/api/Authentication/RefreshToken',
       {},
       {
+        withCredentials: true,
         headers: {
+          skipAuth: 'true', // Custom header to skip auth interceptor for this request
           'X-Idempotency-Key': UUID() + '-refresh-token-' + Date.now(),
         },
       },

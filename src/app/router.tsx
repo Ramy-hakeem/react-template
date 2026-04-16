@@ -22,10 +22,6 @@ export const router = createBrowserRouter([
         element: <LoginPage />,
       },
       {
-        path: 'signup',
-        element: <SignupPage />,
-      },
-      {
         path: '*',
         element: <NotFoundPage />,
       },
@@ -36,6 +32,10 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             element: <Profile />,
+          },
+          {
+            path: 'signup',
+            element: <SignupPage />,
           },
         ],
       },

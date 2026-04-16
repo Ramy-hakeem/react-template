@@ -71,6 +71,9 @@ export const useSignup = () => {
       const response = await signup(credentials);
       console.log(response);
       return response;
+    },
+  });
+};
 // Get Current User
 const getUser = createApi<LoginRequest, LoginResponse>({
   url: '/api/Account/GetCurrentUser',

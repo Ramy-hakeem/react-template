@@ -7,11 +7,9 @@ import { useRefreshToken } from '@/features/auth/api';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
-  requiredRole?: 'user' | 'admin';
-  redirectTo?: string;
 }
 
-export default function AuthProvider({ children }: ProtectedRouteProps) {
+export default function PrivateRoutes({ children }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuthStore();
   const {
     mutateAsync: refreshAccessToken,
@@ -40,7 +38,7 @@ export default function AuthProvider({ children }: ProtectedRouteProps) {
     return <Navigate to={'/login'} state={{ from: location }} replace />;
   }
 
-  // // Check role requirement
+  // Check role requirement
   // if (requiredRole && user?.role !== requiredRole) {
   //   return <Navigate to="/unauthorized" replace />;
   // }
