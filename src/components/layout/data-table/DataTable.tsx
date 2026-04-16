@@ -104,7 +104,6 @@ function DataTableComponent<TData>(
   const pageSize = table.getState().pagination.pageSize;
 
   useEffect(() => {
-    console.log('Data changed:', { sortBy, searchTerm, pageIndex, pageSize });
     handleDataChange?.({ sortBy, searchTerm, pageIndex, pageSize });
   }, [sortBy, pageIndex, pageSize]);
 

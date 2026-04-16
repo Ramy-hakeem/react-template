@@ -1,27 +1,23 @@
 import {
-  User,
-  Mail,
+  AlertCircle,
   Calendar,
-  Shield,
-  BadgeCheck,
+  CheckCircle,
   Circle,
   Copy,
-  CheckCircle,
-  Loader2,
-  AlertCircle,
   HelpCircle,
+  Loader2,
+  Lock,
+  Shield,
+  User,
   UserPlus,
   Users,
-  Key,
-  Fingerprint,
-  KeyRound,
-  Lock,
 } from 'lucide-react';
 import moment from 'moment';
 
-import { useGetCurrentUser } from '@/features/auth/api';
-import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { Button } from '@/components/ui/button';
+import useCopyToClipboard from '@/hooks/useCopyToClipboard';
+import { Link } from 'react-router-dom';
+import { useGetCurrentUser } from '../api';
 
 export default function ProfilePage() {
   const { data, isLoading, error } = useGetCurrentUser();
@@ -53,12 +49,7 @@ export default function ProfilePage() {
             {error?.message ||
               'Unable to fetch user profile data. Please try again later.'}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors"
-          >
-            Try Again
-          </button>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>
     );
@@ -206,15 +197,6 @@ export default function ProfilePage() {
                 {data.userType}
               </span>
             </div>
-
-            <div className="pt-2">
-              <div className="w-full bg-slate-100 rounded-full h-1.5">
-                <div className="bg-emerald-500 h-1.5 rounded-full w-full"></div>
-              </div>
-              <p className="text-xs text-slate-400 mt-2">
-                Account fully verified
-              </p>
-            </div>
           </div>
         </div>
 
@@ -224,30 +206,54 @@ export default function ProfilePage() {
             Quick Actions
           </h3>
           <div className="space-y-2">
-            <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-3 group">
-              <User className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
-              <span className="text-sm text-slate-600 group-hover:text-indigo-600">
-                Update Profile
-              </span>
-            </button>
-            <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-3 group">
-              <Lock className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
-              <span className="text-sm text-slate-600 group-hover:text-indigo-600">
-                Change Password
-              </span>
-            </button>
-            <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-3 group">
-              <UserPlus className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
-              <span className="text-sm text-slate-600 group-hover:text-indigo-600">
-                Add User
-              </span>
-            </button>
-            <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-3 group">
-              <Users className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
-              <span className="text-sm text-slate-600 group-hover:text-indigo-600">
-                Users
-              </span>
-            </button>
+            <Button
+              variant={'ghost'}
+              size={'lg'}
+              className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
+            >
+              <Link to={''} className="flex gap-3 items-center">
+                <User className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
+                <span className="text-sm text-slate-600 group-hover:text-indigo-600">
+                  Update Profile
+                </span>
+              </Link>
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'lg'}
+              className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
+            >
+              <Link to={''} className="flex gap-3 items-center">
+                <Lock className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
+                <span className="text-sm text-slate-600 group-hover:text-indigo-600">
+                  Change Password
+                </span>
+              </Link>
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'lg'}
+              className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
+            >
+              <Link to={'/add-user'} className="flex gap-3 items-center">
+                <UserPlus className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
+                <span className="text-sm text-slate-600 group-hover:text-indigo-600">
+                  Add User
+                </span>
+              </Link>
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'lg'}
+              className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
+            >
+              <Link to={'/all-users'} className="flex gap-3 items-center">
+                <Users className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
+                <span className="text-sm text-slate-600 group-hover:text-indigo-600">
+                  Users
+                </span>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

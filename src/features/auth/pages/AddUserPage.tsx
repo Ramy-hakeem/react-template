@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod/dist/zod.js';
 import type { SignupFormData } from '../type';
 import { useSignup } from '../api';
 
-export default function SignupPage() {
+export default function AddUserPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { data, isPending, isSuccess, mutateAsync: signup } = useSignup();

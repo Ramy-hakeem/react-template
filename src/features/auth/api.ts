@@ -1,13 +1,14 @@
 import createApi from '@/app/api/axiosBaseQuery';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuthStore } from './authStore';
 import type {
   LoginRequest,
   LoginResponse,
   ProfileData,
   SignupPayload,
 } from './type';
-import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
-import { useAuthStore } from './authStore';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { set } from 'zod';
 
 // Auth
 const login = createApi<LoginRequest, LoginResponse>({
@@ -49,19 +50,25 @@ const getRefreshToken = createApi<undefined, { token: string }>({
 });
 
 export const useRefreshToken = () => {
-  const { setToken } = useAuthStore();
+  const { setToken, isAuthenticated } = useAuthStore();
 
-  return useMutation({
-    mutationFn: async () => {
-      const response = await getRefreshToken();
-      if (response.isSuccess) {
-        setToken(response.data.token);
-      } else {
-        // Handle error
+  return useQuery({
+    queryKey: ['refreshToken', isAuthenticated],
+    queryFn: async () => {
+      console.log('refreshToken', 'isAuthenticated:', isAuthenticated);
+      if (!isAuthenticated) {
+        const response = await getRefreshToken();
+        if (response.isSuccess) {
+          setToken(response.data.token);
+        } else {
+          setToken(null);
+        }
+        return response;
       }
-
-      return response;
+      return null;
     },
+    enabled: !isAuthenticated, // Only run when not authenticated
+    retry: false,
   });
 };
 
@@ -79,23 +86,30 @@ export const useSignup = () => {
     },
   });
 };
-// Get Current User
-const getUser = createApi<null, ProfileData>({
-  url: '/api/Account/GetCurrentUser',
+
+const logout = createApi<undefined, null>({
+  url: '/api/Account/Logout',
   method: 'GET',
 });
 
-export const useGetCurrentUser = () => {
-  return useQuery({
-    queryKey: ['userData'],
-    queryFn: async () => {
-      const response = await getUser();
+export const useLogout = () => {
+  const { setToken } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await logout();
 
       if (!response.isSuccess) {
-        throw new Error('Failed to fetch user');
+        throw new Error('Logout failed');
       }
 
-      return response.data;
+      return response;
+    },
+    onSuccess: async () => {
+      setToken(null);
+      // This will trigger a refetch because the query key changed
+      await queryClient.invalidateQueries({ queryKey: ['refreshToken'] });
     },
   });
 };

@@ -11,21 +11,17 @@ interface ProtectedRouteProps {
 
 export default function PrivateRoutes({ children }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuthStore();
-  const {
-    mutateAsync: refreshAccessToken,
-    isPending,
-    isSuccess,
-  } = useRefreshToken();
+  // const {
+  //   mutateAsync: refreshAccessToken,
+  //   isPending,
+  //   isSuccess,
+  // } = useRefreshToken();
+  const { isSuccess, isLoading } = useRefreshToken();
   console.log('isSuccess', isSuccess);
   const location = useLocation();
-  useEffect(() => {
-    if (!isAuthenticated && !isPending) {
-      refreshAccessToken();
-    }
-  }, []);
 
   // Show loading spinner while checking authentication
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

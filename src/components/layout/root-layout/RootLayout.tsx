@@ -1,12 +1,16 @@
 // src/components/layouts/RootLayout.tsx
 import { Button } from '@/components/ui/button';
+import { useLogout } from '@/features/auth/api';
+import { useAuthStore } from '@/features/auth/authStore';
+import { LogOut } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export default function RootLayout() {
+  const { isAuthenticated } = useAuthStore();
   const location = useLocation();
-
+  const { mutateAsync: logout } = useLogout();
   const navigation = [
-    { name: 'Home', href: '/' },
+    { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },
   ];
 
@@ -40,14 +44,17 @@ export default function RootLayout() {
             </nav>
 
             {/* User Actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">Sign In</Link>
+            {isAuthenticated && (
+              <Button
+                onClick={() => logout()}
+                variant="default"
+                size="lg"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
               </Button>
-              <Button size="sm" asChild>
-                <Link to="/signup">Sign Up</Link>
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       </header>
