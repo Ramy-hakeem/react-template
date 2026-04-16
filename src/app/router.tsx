@@ -5,7 +5,7 @@ import LoginPage from '@/features/auth/pages/LoginPage';
 import SignupPage from '@/features/auth/pages/SignupPage';
 import NotFoundPage from '@/components/layout/not-found/NotFoundPage';
 import Providers from './providers';
-import Profile from '@/features/users/pages/Profile';
+import ProfilePage from '@/features/users/pages/Profile';
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'profile',
-            element: <Profile />,
+            element: <ProfilePage />,
           },
           {
             path: 'signup',

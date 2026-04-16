@@ -1,6 +1,11 @@
 import createApi from '@/app/api/axiosBaseQuery';
-import type { LoginRequest, LoginResponse, SignupPayload } from './type';
-import { useMutation } from '@tanstack/react-query';
+import type {
+  LoginRequest,
+  LoginResponse,
+  ProfileData,
+  SignupPayload,
+} from './type';
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './authStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -75,22 +80,22 @@ export const useSignup = () => {
   });
 };
 // Get Current User
-const getUser = createApi<LoginRequest, LoginResponse>({
+const getUser = createApi<null, ProfileData>({
   url: '/api/Account/GetCurrentUser',
   method: 'GET',
 });
 
 export const useGetCurrentUser = () => {
-  return useMutation({
-    mutationFn: async () => {
+  return useQuery({
+    queryKey: ['userData'],
+    queryFn: async () => {
       const response = await getUser();
-      if (response.isSuccess) {
-        console.log(response.data);
-        return response.data;
-      } else {
-        // Handle error
-        return null;
+
+      if (!response.isSuccess) {
+        throw new Error('Failed to fetch user');
       }
+
+      return response.data;
     },
   });
 };

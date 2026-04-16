@@ -8,7 +8,8 @@ import createAuthRefreshInterceptor from 'axios-auth-refresh';
 
 // create axios client
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  // Force same-origin in dev for cookies to work
+  baseURL: import.meta.env.PROD ? import.meta.env.VITE_API_URL : '',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -17,25 +18,27 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
+    // If skipAuth is provided, remove it and DO NOT attach Bearer token
     if (config.headers?.skipAuth) {
       delete config.headers.skipAuth;
-      return config;
+    } else {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+
     const idempotentMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
     const method = config.method?.toUpperCase();
     if (!getState('uuid')) {
       addState('uuid', UUID());
     }
     if (idempotentMethods.includes(method || '')) {
-      const idempotencyKey = getState('uuid');
-      config.headers.set(
-        'X-Idempotency-Key',
-        idempotencyKey + config.url?.replace(/\//g, '-'),
-      );
+      // Respect idempotency keys generated explicitly (e.g. refresh token)
+      const existingKey = config.headers.get('X-Idempotency-Key');
+      const idempotencyKey =
+        existingKey || getState('uuid') + config.url?.replace(/\//g, '-');
+      config.headers.set('X-Idempotency-Key', idempotencyKey);
     }
     return config;
   },
@@ -45,44 +48,57 @@ apiClient.interceptors.request.use(
   },
 );
 
-// Refresh token logic - called automatically when a request fails with 401
-const refreshAuthLogic = async () => {
-  try {
-    const response = await apiClient.post(
+let refreshPromise: Promise<string> | null = null;
+
+export const executeTokenRefresh = async () => {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  // Must use skipAuth so the backend's GlobalExceptionMiddleware doesn't reject the expired JWT
+  // Must use a unique idempotency key so the backend doesn't return a cached expired cookie
+  refreshPromise = apiClient
+    .post(
       '/api/Authentication/RefreshToken',
       {},
       {
-        withCredentials: true,
         headers: {
-          skipAuth: 'true', // Custom header to skip auth interceptor for this request
+          skipAuth: true,
           'X-Idempotency-Key': UUID() + '-refresh-token-' + Date.now(),
         },
       },
-    );
+    )
+    .then((response) => {
+      const newAccessToken = response.data?.data?.token;
+      if (!newAccessToken)
+        throw new Error('No access token received from refresh endpoint');
 
-    // Extract new access token from response (adjust based on your API response structure)
-    const newAccessToken = response.data.data.token;
+      // Update Zustand store with new token
+      useAuthStore.getState().setToken(newAccessToken);
+      return newAccessToken;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
 
-    if (!newAccessToken) {
-      throw new Error('No access token received from refresh endpoint');
+  return refreshPromise;
+};
+
+// Refresh token logic - called automatically when a request fails with 401
+const refreshAuthLogic = async (failedRequest: any) => {
+  try {
+    const newAccessToken = await executeTokenRefresh();
+    console.log('Token refreshed successfully');
+
+    // CRITICAL: Update the failed request's Authorization header so the retry uses the new token
+    if (failedRequest?.response?.config) {
+      failedRequest.response.config.headers['Authorization'] =
+        `Bearer ${newAccessToken}`;
     }
-
-    // Update Zustand store with new token
-    useAuthStore.getState().setToken(newAccessToken);
-
     return Promise.resolve();
   } catch (refreshError) {
-    // Refresh failed - likely refresh token expired or invalid
     console.error('Token refresh failed:', refreshError);
-
-    // Clear auth state from Zustand
     useAuthStore.getState().setToken(null);
-
-    // Redirect to login page
-    // if (typeof window !== 'undefined') {
-    //   window.location.href = '/login';
-    // }
-
     return Promise.reject(refreshError);
   }
 };
@@ -93,10 +109,6 @@ createAuthRefreshInterceptor(apiClient, refreshAuthLogic, {
 
 apiClient.interceptors.response.use(
   (response) => {
-    // check for auth error
-    // if (response.data?.RESULT_CODE === 401) {
-    //   throw new Error('ERROR:AUTHENTICATION');
-    // }
     return response;
   },
   (error) => {
@@ -109,8 +121,11 @@ apiClient.interceptors.response.use(
         duration: 5000,
       });
     }
+    // CRITICAL: Return the rejected promise so axios-auth-refresh can hook into the 401
+    return Promise.reject(error);
   },
 );
+
 const { get, post, put, postForm, delete: del } = apiClient;
 
 export { get, post, put, postForm, del };

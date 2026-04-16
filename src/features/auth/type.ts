@@ -18,3 +18,16 @@ export interface LoginResponse {
 }
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type SignupPayload = Omit<SignupFormData, 'confirmPassword'>;
+
+export interface ProfileData {
+  userName: string;
+  email: string;
+  isActive: boolean;
+  userType: string;
+  roles: {
+    id: string;
+    name: string;
+  }[];
+  id: string;
+  createdDate: string;
+}
