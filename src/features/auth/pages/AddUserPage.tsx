@@ -5,12 +5,12 @@ import { signupSchema } from '../validationSchemas';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod/dist/zod.js';
 import type { SignupFormData } from '../type';
-import { useSignup } from '../api';
+import { useSignupMutation } from '../api';
 
 export default function AddUserPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { data, isPending, isSuccess, mutateAsync: signup } = useSignup();
+  const [signup, { isLoading }] = useSignupMutation();
   const {
     register,
     handleSubmit,
@@ -187,7 +187,7 @@ export default function AddUserPage() {
               disabled={isSubmitting}
               className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isPending ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing up...

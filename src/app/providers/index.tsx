@@ -1,11 +1,11 @@
 // src/components/AuthWrapper.tsx
 import { Outlet } from 'react-router-dom';
-import AuthProvider from './PrivateRoutes';
+import ProtectedRoute from './ProtectedRoute';
 
 export default function Providers() {
   return (
-    <AuthProvider>
+    <ProtectedRoute>
       <Outlet />
-    </AuthProvider>
+    </ProtectedRoute>
   );
 }

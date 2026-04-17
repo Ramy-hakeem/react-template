@@ -1,12 +1,15 @@
 import { get, post, put, postForm, del } from './axiosBase';
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import type {
   AxiosBaseQueryArgs,
   AxiosBaseQueryError,
   AxiosBaseQueryResult,
   AxiosBaseQuerySuccess,
 } from './types';
+
+// Type for createApi config
 
 // Helper to check if result is success
 export const isSuccess = <D>(
@@ -15,10 +18,11 @@ export const isSuccess = <D>(
   return result.isSuccess === true;
 };
 
-const axiosBaseQuery = async <Req, Res, P = Record<string, unknown>>(
+export const axiosBaseQuery = async <Req, Res, P = Record<string, unknown>>(
   args: AxiosBaseQueryArgs<Req, P>,
 ): Promise<AxiosBaseQueryResult<Res>> => {
-  const { url, method = 'GET', data, params, isForm = false } = args;
+  const { url, method = 'GET', data, body, params, isForm = false } = args;
+  const requestData = data || body;
   try {
     let response: AxiosResponse<AxiosBaseQuerySuccess<Res>>;
     switch (method.toUpperCase()) {
@@ -28,16 +32,16 @@ const axiosBaseQuery = async <Req, Res, P = Record<string, unknown>>(
 
       case 'POST':
         response = isForm
-          ? await postForm(url, data, { params })
-          : await post(url, data, { params });
+          ? await postForm(url, requestData, { params })
+          : await post(url, requestData, { params });
         break;
 
       case 'PUT':
-        response = await put(url, data, { params });
+        response = await put(url, requestData, { params });
         break;
 
       case 'DELETE':
-        response = await del(url, { data, params });
+        response = await del(url, { data: requestData, params });
         break;
 
       default:
@@ -76,15 +80,20 @@ const axiosBaseQuery = async <Req, Res, P = Record<string, unknown>>(
   }
 };
 
-// API function builder
-export default function createApi<Req, Res, P = Record<string, unknown>>(
-  config: Omit<AxiosBaseQueryArgs<Req, P>, 'data'>, // Omit 'data' since we'll pass it separately
-) {
-  return async (data?: Req, params?: P): Promise<AxiosBaseQueryResult<Res>> => {
-    return axiosBaseQuery<Req, Res, P>({
-      ...config,
-      data,
-      params: params || config.params, // Use passed params or fallback to config params
-    });
-  };
-}
+// RTK compatible baseQuery
+const rtkBaseQuery = async (args: unknown) => {
+  const result = await axiosBaseQuery(
+    args as AxiosBaseQueryArgs<unknown, unknown>,
+  );
+  if (result.isSuccess) {
+    return { data: result.data };
+  } else {
+    return { error: { status: result.errorCode, data: result } };
+  }
+};
+
+export const axiosBaseAPI = createApi({
+  reducerPath: 'axiosBaseAPI',
+  baseQuery: rtkBaseQuery,
+  endpoints: () => ({}),
+});

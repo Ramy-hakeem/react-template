@@ -18,3 +18,8 @@ export interface LoginResponse {
 }
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type SignupPayload = Omit<SignupFormData, 'confirmPassword'>;
+
+export interface AuthState {
+  token: string | null;
+  isAuthenticated: boolean;
+}

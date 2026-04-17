@@ -1,14 +1,14 @@
 // src/components/layouts/RootLayout.tsx
 import { Button } from '@/components/ui/button';
-import { useLogout } from '@/features/auth/api';
-import { useAuthStore } from '@/features/auth/authStore';
+import { useLogoutMutation } from '@/features/auth/api';
+import { useAuthStore } from '@/features/auth/hooks';
 import { LogOut } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export default function RootLayout() {
   const { isAuthenticated } = useAuthStore();
   const location = useLocation();
-  const { mutateAsync: logout } = useLogout();
+  const [logout] = useLogoutMutation();
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },

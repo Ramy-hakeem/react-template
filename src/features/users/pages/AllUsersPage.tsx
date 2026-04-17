@@ -1,7 +1,6 @@
 import { DataTable } from '@/components/layout/data-table/DataTable';
 import { type ColumnDef } from '@tanstack/react-table';
-import React, { useState } from 'react';
-import { useGetAllUsers } from '../api';
+import { useLazyGetAllUsersQuery } from '../api';
 import type { UserData } from '../types';
 
 // TypeScript interface for User data
@@ -9,11 +8,7 @@ import type { UserData } from '../types';
 // Mock data generator
 
 const AllUsersPage: React.FC = () => {
-  const [payload, setPayload] = useState({
-    pageNumber: 1,
-    pageSize: 1,
-  });
-  const { data, isLoading, refetch } = useGetAllUsers(payload);
+  const [getAllUsers, { data, isLoading }] = useLazyGetAllUsersQuery();
   const columns: ColumnDef<UserData>[] = [
     {
       accessorKey: 'id',
@@ -87,10 +82,12 @@ const AllUsersPage: React.FC = () => {
       columns={columns}
       data={data?.isSuccess ? data.data : []}
       handleDataChange={(data) => {
-        setPayload({ pageNumber: data.pageIndex + 1, pageSize: data.pageSize });
-        refetch();
+        getAllUsers({
+          pageNumber: data.pageIndex + 1,
+          pageSize: data.pageSize,
+        });
       }}
-      numberOfPages={data?.isSuccess ? data.totalPages : 1}
+      numberOfPages={data?.totalPages || 1}
     />
   );
 };
