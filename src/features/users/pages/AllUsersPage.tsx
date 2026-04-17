@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/layout/data-table/DataTable';
 import { type ColumnDef } from '@tanstack/react-table';
-import React from 'react';
+import React, { useState } from 'react';
 import { useGetAllUsers } from '../api';
 import type { UserData } from '../types';
 
@@ -9,7 +9,11 @@ import type { UserData } from '../types';
 // Mock data generator
 
 const AllUsersPage: React.FC = () => {
-  const { data, isLoading } = useGetAllUsers(1, 10);
+  const [payload, setPayload] = useState({
+    pageNumber: 1,
+    pageSize: 1,
+  });
+  const { data, isLoading, refetch } = useGetAllUsers(payload);
   const columns: ColumnDef<UserData>[] = [
     {
       accessorKey: 'id',
@@ -79,14 +83,15 @@ const AllUsersPage: React.FC = () => {
     return;
   }
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          {/* Table */}
-          <DataTable columns={columns} data={data} />
-        </div>
-      </div>
-    </div>
+    <DataTable<UserData>
+      columns={columns}
+      data={data?.isSuccess ? data.data : []}
+      handleDataChange={(data) => {
+        setPayload({ pageNumber: data.pageIndex + 1, pageSize: data.pageSize });
+        refetch();
+      }}
+      numberOfPages={data?.isSuccess ? data.totalPages : 1}
+    />
   );
 };
 

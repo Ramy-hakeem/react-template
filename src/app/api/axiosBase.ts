@@ -28,18 +28,15 @@ apiClient.interceptors.request.use(
       }
     }
 
-    const idempotentMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    const method = config.method?.toUpperCase();
     if (!getState('uuid')) {
       addState('uuid', UUID());
     }
-    if (idempotentMethods.includes(method || '')) {
-      // Respect idempotency keys generated explicitly (e.g. refresh token)
-      const existingKey = config.headers.get('X-Idempotency-Key');
-      const idempotencyKey =
-        existingKey || getState('uuid') + config.url?.replace(/\//g, '-');
-      config.headers.set('X-Idempotency-Key', idempotencyKey);
-    }
+    // Respect idempotency keys generated explicitly (e.g. refresh token)
+    const existingKey = config.headers.get('X-Idempotency-Key');
+    const idempotencyKey =
+      existingKey || getState('uuid') + config.url?.replace(/\//g, '-');
+    config.headers.set('X-Idempotency-Key', idempotencyKey);
+
     return config;
   },
   (error) => {

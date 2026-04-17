@@ -24,23 +24,25 @@ export const useGetCurrentUser = () => {
 };
 
 const getAllUsers = createApi<
-  { pageindex: number; pageSize: number },
+  { pageNumber: number; pageSize: number },
   { data: UserData[]; total: number }
 >({
   url: '/api/Account/list',
   method: 'POST',
 });
 
-export const useGetAllUsers = (pageIndex: number, pageSize: number) => {
+export const useGetAllUsers = ({
+  pageNumber,
+  pageSize,
+}: {
+  pageNumber: number;
+  pageSize: number;
+}) => {
   return useQuery({
-    queryKey: ['allUsers', pageIndex, pageSize],
+    queryKey: ['allUsers', pageNumber, pageSize],
     queryFn: async () => {
-      const response = await getAllUsers({ pageindex: pageIndex, pageSize });
-      if (response.isSuccess) {
-        return response.data;
-      } else {
-        return [];
-      }
+      const response = await getAllUsers({ pageNumber, pageSize });
+      return response;
     },
     staleTime: Infinity,
   });
