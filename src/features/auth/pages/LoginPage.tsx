@@ -9,8 +9,8 @@ import { useAuthStore } from '../hooks';
 export default function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [login, { isLoading: isLoginPending }] = useLoginMutation();
-  const { isAuthenticated } = useAuthStore();
+  const [login, { isLoading: isLoginPending, isSuccess }] = useLoginMutation();
+  const { isAuthenticated, setToken } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -22,10 +22,10 @@ export default function LoginPage() {
     },
   });
   const onSubmit = async (data: LoginRequest) => {
-    await login(data);
+    const res = await login(data);
+    setToken(res.data.token);
   };
   const isLoading = isLoginPending || isSubmitting;
-
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       navigate('/', { replace: true });

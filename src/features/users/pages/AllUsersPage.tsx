@@ -3,10 +3,6 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { useLazyGetAllUsersQuery } from '../api';
 import type { UserData } from '../types';
 
-// TypeScript interface for User data
-
-// Mock data generator
-
 const AllUsersPage: React.FC = () => {
   const [getAllUsers, { data, isLoading }] = useLazyGetAllUsersQuery();
   const columns: ColumnDef<UserData>[] = [
@@ -49,7 +45,6 @@ const AllUsersPage: React.FC = () => {
       header: 'Status',
       cell: (info) => {
         const status = info.getValue<boolean>() ? 'Active' : 'Inactive';
-        console.log(status);
         const statusColors = {
           Active: 'bg-green-100 text-green-800',
           Inactive: 'bg-red-100 text-red-800',

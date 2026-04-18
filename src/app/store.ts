@@ -1,7 +1,7 @@
 import {
   combineReducers,
   configureStore,
-  type AnyAction,
+  type UnknownAction,
 } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
 import authReducer, { logout } from '@/features/auth/authSlice';
@@ -15,7 +15,7 @@ export type RootState = ReturnType<typeof appReducer>;
 
 const rootReducer = (
   state: RootState | undefined,
-  action: AnyAction,
+  action: UnknownAction,
 ): RootState => {
   if (action.type === logout.type) {
     state = undefined;
@@ -28,7 +28,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       axiosBaseAPI.middleware,
-      // ...(import.meta.env.DEV ? [logger] : []),
+      ...(import.meta.env.DEV ? [logger] : []),
     ),
   devTools: !import.meta.env.PROD,
 });
