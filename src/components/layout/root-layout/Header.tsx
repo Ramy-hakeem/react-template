@@ -7,7 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 function Header() {
   //   fetching
-  const { data: user } = useGetCurrentUserQuery({});
+  const { data, isLoading } = useGetCurrentUserQuery({});
   const [logout] = useLogoutMutation();
   //   store
   const { isAuthenticated } = useAuthStore();
@@ -17,6 +17,10 @@ function Header() {
     { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },
   ];
+  const user = data?.data;
+  if (isLoading) {
+    return;
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4">
@@ -28,7 +32,6 @@ function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {navigation.map((item) => (
               <Link
@@ -57,7 +60,7 @@ function Header() {
                   {/* Avatar with user initial */}
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-sm font-medium text-primary">
-                      {user.userName.charAt(0).toUpperCase()}
+                      {user.userName?.charAt(0).toUpperCase()}
                     </span>
                   </div>
 
@@ -78,7 +81,7 @@ function Header() {
                       <div className="flex items-center gap-3 mb-3">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                           <span className="text-base font-semibold text-primary">
-                            {user.userName.charAt(0).toUpperCase()}
+                            {user.userName?.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div className="flex-1">

@@ -14,7 +14,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import Searchbar from '../form/Searchbar';
-import { SortDescIcon, SortAscIcon } from 'lucide-react';
+import { SortDescIcon, SortAscIcon, ChevronDown, Rows } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import {
@@ -61,11 +61,11 @@ function DataTableComponent<TData>(
       size: 150,
     },
   });
+
   useImperativeHandle(
     ref,
     () => ({
       refresh: () => {
-        // Reset local state
         table.setPageIndex(0);
         table.resetSorting();
         table.resetGlobalFilter();
@@ -77,19 +77,15 @@ function DataTableComponent<TData>(
           pageSize: table.getState().pagination.pageSize,
         });
       },
-
-      // You can add more methods as needed
       getCurrentState: () => ({
         searchTerm,
         sortBy,
         pageIndex: table.getState().pagination.pageIndex,
         pageSize: table.getState().pagination.pageSize,
       }),
-
       resetSearch: () => {
         setSearchTerm('');
       },
-
       resetSorting: () => {
         setSortBy({ id: '', desc: false });
       },
@@ -99,12 +95,13 @@ function DataTableComponent<TData>(
     }),
     [searchTerm, sortBy, table, handleDataChange],
   );
+
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
 
   useEffect(() => {
     handleDataChange?.({ sortBy, searchTerm, pageIndex, pageSize });
-  }, [sortBy, pageIndex, pageSize]);
+  }, [sortBy, pageIndex, pageSize, searchTerm, handleDataChange]);
 
   const generatePaginationLinks = () => {
     const currentPage = pageIndex;
@@ -112,19 +109,16 @@ function DataTableComponent<TData>(
     const pages = [];
 
     if (totalPages <= 5) {
-      // Show all pages if 5 or less
       for (let i = 0; i < totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(0);
 
       if (currentPage > 2) {
-        pages.push(-1); // Ellipsis
+        pages.push(-1);
       }
 
-      // Show current page and neighbors
       const start = Math.max(1, currentPage - 1);
       const end = Math.min(totalPages - 2, currentPage + 1);
 
@@ -135,10 +129,9 @@ function DataTableComponent<TData>(
       }
 
       if (currentPage < totalPages - 3) {
-        pages.push(-1); // Ellipsis
+        pages.push(-1);
       }
 
-      // Always show last page
       if (totalPages > 1) {
         pages.push(totalPages - 1);
       }
@@ -146,150 +139,191 @@ function DataTableComponent<TData>(
 
     return pages;
   };
+
   return (
-    <>
-      <Searchbar
-        className="w-1/4"
-        onClick={
-          handleDataChange
-            ? () => {
-                if (pageIndex !== 0) {
-                  table.setPageIndex(0); // Reset to first page on new search
-                } else {
-                  handleDataChange({
-                    sortBy,
-                    searchTerm,
-                    pageIndex: 0,
-                    pageSize,
-                  });
+    <div className="space-y-4">
+      {/* Header Section with Search */}
+      <div className="flex items-center justify-between gap-4">
+        <Searchbar
+          className="max-w-md flex-1"
+          onClick={
+            handleDataChange
+              ? () => {
+                  if (pageIndex !== 0) {
+                    table.setPageIndex(0);
+                  } else {
+                    handleDataChange({
+                      sortBy,
+                      searchTerm,
+                      pageIndex: 0,
+                      pageSize,
+                    });
+                  }
                 }
-              }
-            : undefined
-        }
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        isLoading={isLoading}
-      />
+              : undefined
+          }
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          isLoading={isLoading}
+        />
+
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" disabled={isLoading}>
+            Export
+          </Button>
+        </div>
+      </div>
+
+      {/* Table Section */}
       {isLoading ? (
         <SkeletonTable columnsLength={columns.length} pageSize={pageSize} />
       ) : (
-        <div className="overflow-hidden rounded-md border">
-          <Table style={{ width: table.getTotalSize() }}>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{
-                          position: 'relative',
-                          width: header.getSize(),
-                        }}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                        {header.column.getCanSort() && (
-                          <Button
-                            onClick={() => {
-                              header.column.toggleSorting();
-                              setSortBy({
-                                id: header.id,
-                                desc: header.column.getIsSorted() === 'desc',
-                              });
-                            }}
-                            variant="ghost"
-                            size="icon"
-                            className="ml-2"
-                          >
-                            {header.column.getIsSorted() === 'asc' ? (
-                              <SortAscIcon className="ml-1 inline-block h-4 w-4" />
-                            ) : header.column.getIsSorted() === 'desc' ? (
-                              <SortDescIcon className="ml-1 inline-block h-4 w-4" />
-                            ) : (
-                              <SortAscIcon className="ml-1 inline-block h-4 w-4 opacity-30" />
-                            )}
-                          </Button>
-                        )}
-                        {header.column.getCanResize() && (
-                          <div
-                            onDoubleClick={() => header.column.resetSize()}
-                            onMouseDown={header.getResizeHandler()}
-                            onTouchStart={header.getResizeHandler()}
-                            className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-border hover:bg-primary/50 ${
-                              header.column.getIsResizing() ? 'bg-primary' : ''
-                            }`}
-                          />
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+        <div className="relative overflow-hidden rounded-lg border bg-background shadow-sm">
+          <div className="overflow-x-auto ">
+            <Table
+              className={`min-w-full h-150 overflow-auto`}
+              style={{ minWidth: '100%', width: table.getTotalSize() }}
+            >
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    key={headerGroup.id}
+                    className="border-b bg-muted/50"
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        style={{
-                          width: cell.column.getSize(),
-                        }}
-                        className="text-center"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead
+                          key={header.id}
+                          style={{
+                            position: 'relative',
+                            width: header.getSize(),
+                          }}
+                          className="h-12 px-4 text-left font-semibold"
+                        >
+                          <div className="flex items-center gap-1">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                            {header.column.getCanSort() && (
+                              <Button
+                                onClick={() => {
+                                  header.column.toggleSorting();
+                                  setSortBy({
+                                    id: header.id,
+                                    desc:
+                                      header.column.getIsSorted() === 'desc',
+                                  });
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 hover:bg-transparent"
+                              >
+                                {header.column.getIsSorted() === 'asc' ? (
+                                  <SortAscIcon className="h-4 w-4" />
+                                ) : header.column.getIsSorted() === 'desc' ? (
+                                  <SortDescIcon className="h-4 w-4" />
+                                ) : (
+                                  <SortAscIcon className="h-4 w-4 opacity-30" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                          {header.column.getCanResize() && (
+                            <div
+                              onDoubleClick={() => header.column.resetSize()}
+                              onMouseDown={header.getResizeHandler()}
+                              onTouchStart={header.getResizeHandler()}
+                              className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-border transition-colors hover:bg-primary ${
+                                header.column.getIsResizing()
+                                  ? 'bg-primary'
+                                  : ''
+                              }`}
+                            />
+                          )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row, index) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                      className={`transition-colors hover:bg-muted/50  ${
+                        index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+                      }`}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          style={{
+                            width: cell.column.getSize(),
+                          }}
+                          className="px-4 py-3 text-left align-middle"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-48 text-center"
+                    >
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <div className="text-lg">No results found</div>
+                        <p className="text-sm">
+                          Try adjusting your search or filter to find what
+                          you're looking for.
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
 
-      <div className="flex items-center justify-between px-2 mt-2">
+      {/* Pagination Section */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-nowrap">
         {isLoading ? (
-          <SkeletonText lines={1} />
+          <SkeletonText lines={1} className="w-48" />
         ) : (
-          <p className="text-sm text-nowrap" data-slot="pagination-info">
-            page {table.getState().pagination.pageIndex + 1} of {numberOfPages}
-          </p>
+          <div className="flex gap-3 text-sm w-auto ">
+            {numberOfPages && (
+              <div className="rounded-md bg-muted px-3 py-1 text-muted-foreground ">
+                Page {pageIndex + 1} of {numberOfPages}
+              </div>
+            )}
+          </div>
         )}
+
         {isLoading ? (
-          <SkeletonText lines={1} />
+          <SkeletonText lines={1} className="w-64" />
         ) : (
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex-wrap gap-1">
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => table.previousPage()}
-                  className={
+                  className={`cursor-pointer ${
                     !table.getCanPreviousPage()
                       ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
+                      : 'hover:bg-muted'
+                  }`}
                 />
               </PaginationItem>
 
@@ -301,7 +335,11 @@ function DataTableComponent<TData>(
                     <PaginationLink
                       onClick={() => table.setPageIndex(page)}
                       isActive={pageIndex === page}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-colors ${
+                        pageIndex === page
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : 'hover:bg-muted'
+                      }`}
                     >
                       {page + 1}
                     </PaginationLink>
@@ -312,21 +350,55 @@ function DataTableComponent<TData>(
               <PaginationItem>
                 <PaginationNext
                   onClick={() => table.nextPage()}
-                  className={
+                  className={`cursor-pointer ${
                     pageIndex >=
                     (numberOfPages
                       ? numberOfPages - 1
                       : table.getPageCount() - 1)
                       ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
+                      : 'hover:bg-muted'
+                  }`}
                 />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         )}
+
+        {/* {isLoading ? (
+          <SkeletonText lines={1} className="w-48" />
+        ) : (
+          <div className="flex gap-3 text-sm w-auto ">
+            {totalCount && (
+              <div className="rounded-md bg-muted px-3 py-1 text-muted-foreground text-nowrap">
+                {totalCount} result
+              </div>
+            )}
+          </div>
+        )} */}
+        {isLoading ? (
+          <SkeletonText lines={1} className="w-48" />
+        ) : (
+          <div className="flex items-center gap-3 rounded-md border border-input bg-background px-3 py-1.5 focus-within:ring-2 focus-within:ring-ring">
+            <span className="text-xs text-muted-foreground">Rows</span>
+            <input
+              type="number"
+              value={pageSize}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                if (value > 0 && value <= 1000) {
+                  table.setPageSize(value);
+                  table.setPageIndex(0);
+                }
+              }}
+              min="1"
+              max="1000"
+              className="w-20 border-none bg-transparent text-center text-sm outline-none"
+            />
+            <span className="text-xs text-muted-foreground">per page</span>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 

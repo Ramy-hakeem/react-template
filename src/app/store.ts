@@ -28,7 +28,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       axiosBaseAPI.middleware,
-      ...(import.meta.env.DEV ? [logger] : []),
+      // ...(import.meta.env.DEV ? [logger] : []),
     ),
   devTools: !import.meta.env.PROD,
 });

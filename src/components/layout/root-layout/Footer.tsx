@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   // fetching
-  const { data: user } = useGetCurrentUserQuery({});
+  const { data } = useGetCurrentUserQuery({});
+  const user = data?.data;
+
   // store
   const { isAuthenticated } = useAuthStore();
   return (

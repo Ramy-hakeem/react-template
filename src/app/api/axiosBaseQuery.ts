@@ -47,13 +47,12 @@ export const axiosBaseQuery = async <Req, Res, P = Record<string, unknown>>(
       default:
         throw new Error(`Unsupported method: ${method}`);
     }
-
+    console.log('this is the response ', response);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       // Case 1: Server responded with error
       if (error.response) {
-        // Type the response data as your error interface
         const errorData = error.response.data as AxiosBaseQueryError;
 
         return {
@@ -86,7 +85,7 @@ const rtkBaseQuery = async (args: unknown) => {
     args as AxiosBaseQueryArgs<unknown, unknown>,
   );
   if (result.isSuccess) {
-    return { data: result.data };
+    return { data: result };
   } else {
     return { error: { status: result.errorCode, data: result } };
   }
@@ -97,3 +96,8 @@ export const axiosBaseAPI = createApi({
   baseQuery: rtkBaseQuery,
   endpoints: () => ({}),
 });
+
+export function transformResponse<D>(response: AxiosBaseQuerySuccess<D>): D {
+  const data: D = response.data;
+  return data;
+}

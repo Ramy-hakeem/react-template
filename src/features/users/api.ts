@@ -7,7 +7,7 @@ const enhancedApi = axiosBaseAPI.enhanceEndpoints({
 });
 export const usersApi = enhancedApi.injectEndpoints({
   endpoints: (build) => ({
-    getCurrentUser: build.query({
+    getCurrentUser: build.query<ApiResponse<UserData>, GetAllUsersPayload>({
       query: () => ({
         url: '/api/Account/GetCurrentUser',
         method: 'GET',
