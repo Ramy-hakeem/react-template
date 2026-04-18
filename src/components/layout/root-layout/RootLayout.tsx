@@ -3,9 +3,13 @@ import { Button } from '@/components/ui/button';
 import { useLogoutMutation } from '@/features/auth/api';
 import { useAuthStore } from '@/features/auth/hooks';
 import { LogOut } from 'lucide-react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-export default function RootLayout() {
+export default function RootLayout({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const { isAuthenticated } = useAuthStore();
   const location = useLocation();
   const [logout] = useLogoutMutation();
@@ -46,7 +50,7 @@ export default function RootLayout() {
             {/* User Actions */}
             {isAuthenticated && (
               <Button
-                onClick={() => logout()}
+                onClick={() => logout({})}
                 variant="default"
                 size="lg"
                 className="flex items-center gap-2"
@@ -59,7 +63,9 @@ export default function RootLayout() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 h-full ">{<Outlet />}</main>
+      <main className="container mx-auto px-4 py-6 h-full scroll-auto">
+        {children}
+      </main>
 
       <footer className="border-t py-6 md:py-0">
         <div className="container mx-auto px-4 flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">

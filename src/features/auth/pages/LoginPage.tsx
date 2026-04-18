@@ -33,7 +33,7 @@ export default function LoginPage() {
   }, [isAuthenticated, isLoading, navigate]);
 
   return (
-    <div className="flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full  h-screen m-0 p-0">
       <div className="w-full max-w-md">
         <div className="rounded-lg bg-white p-8 shadow-xl">
           <div className="mb-8 text-center">
