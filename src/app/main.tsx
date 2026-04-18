@@ -4,8 +4,9 @@ import '@/styles/index.css';
 import App from './App.tsx';
 import { Toaster } from 'sonner';
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <Toaster />
+
     <App />
-  </StrictMode>,
+  </>,
 );

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { createAuthRefresh } from 'axios-auth-refresh';
 import { toast } from 'sonner';
 import { msgs } from './messages.ts';
-import { executeTokenRefresh } from './refreshToken.ts';
+import { refreshAuthLogic } from './refreshToken.ts';
 
 // create axios client
 export const apiClient = axios.create({
@@ -37,18 +37,17 @@ apiClient.interceptors.request.use(
     // Respect idempotency keys generated explicitly (e.g. refresh token)
     const existingKey = config.headers.get('X-Idempotency-Key');
     const idempotencyKey =
-      existingKey || getState('uuid') + config.url?.replace(/\//g, '-');
+      existingKey || ` ${UUID()} + '-refresh-token-' + ${Date.now()}`;
     config.headers.set('X-Idempotency-Key', idempotencyKey);
     return config;
   },
   (error) => {
-    console.log('there is error here ya Ramy');
     console.error('Request configuration error:', error);
     return Promise.reject(error);
   },
 );
 
-createAuthRefresh(apiClient, executeTokenRefresh, {
+createAuthRefresh(apiClient, refreshAuthLogic, {
   statusCodes: [401],
 });
 

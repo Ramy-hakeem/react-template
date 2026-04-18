@@ -39,7 +39,6 @@ export default function NotFoundPageAdvanced({
     e.preventDefault();
     if (searchQuery.trim()) {
       // Implement your search logic here
-      console.log('Searching for:', searchQuery);
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
     }
   };

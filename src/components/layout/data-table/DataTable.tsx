@@ -65,7 +65,6 @@ function DataTableComponent<TData>(
     ref,
     () => ({
       refresh: () => {
-        console.log('Refreshing data...');
         // Reset local state
         table.setPageIndex(0);
         table.resetSorting();
