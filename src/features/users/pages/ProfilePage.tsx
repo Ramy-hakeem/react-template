@@ -17,10 +17,10 @@ import moment from 'moment';
 import { Button } from '@/components/ui/button';
 import useCopyToClipboard from '@/hooks/useCopyToClipboard';
 import { Link } from 'react-router-dom';
-import { useGetCurrentUser } from '../api';
+import { useGetCurrentUserQuery } from '../api';
 
 export default function ProfilePage() {
-  const { data, isLoading, error } = useGetCurrentUser();
+  const { data, isLoading, error } = useGetCurrentUserQuery({});
   const { copiedField, copyToClipboard } = useCopyToClipboard();
 
   if (isLoading) {

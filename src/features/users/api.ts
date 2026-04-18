@@ -1,49 +1,32 @@
-import createApi from '@/app/api/axiosBaseQuery';
-import { useQuery } from '@tanstack/react-query';
-import type { UserData } from './types';
+import { axiosBaseAPI } from '@/app/api/axiosBaseQuery';
+import type { GetAllUsersPayload, UserData } from './types';
+import type { ApiResponse } from '@/app/api/types';
 
-// Get Current User
-const getUser = createApi<null, UserData>({
-  url: '/api/Account/GetCurrentUser',
-  method: 'GET',
+const enhancedApi = axiosBaseAPI.enhanceEndpoints({
+  addTagTypes: ['users', 'user'],
+});
+export const usersApi = enhancedApi.injectEndpoints({
+  endpoints: (build) => ({
+    getCurrentUser: build.query({
+      query: () => ({
+        url: '/api/Account/GetCurrentUser',
+        method: 'GET',
+      }),
+      providesTags: ['user'],
+    }),
+    getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
+      query: ({ pageNumber, pageSize }) => ({
+        url: '/api/Account/list',
+        method: 'POST',
+        body: { pageNumber, pageSize },
+      }),
+      providesTags: ['users'],
+    }),
+  }),
 });
 
-export const useGetCurrentUser = () => {
-  return useQuery({
-    queryKey: ['userData'],
-    queryFn: async () => {
-      const response = await getUser();
-
-      if (!response.isSuccess) {
-        throw new Error('Failed to fetch user');
-      }
-
-      return response.data;
-    },
-  });
-};
-
-const getAllUsers = createApi<
-  { pageNumber: number; pageSize: number },
-  { data: UserData[]; total: number }
->({
-  url: '/api/Account/list',
-  method: 'POST',
-});
-
-export const useGetAllUsers = ({
-  pageNumber,
-  pageSize,
-}: {
-  pageNumber: number;
-  pageSize: number;
-}) => {
-  return useQuery({
-    queryKey: ['allUsers', pageNumber, pageSize],
-    queryFn: async () => {
-      const response = await getAllUsers({ pageNumber, pageSize });
-      return response;
-    },
-    staleTime: Infinity,
-  });
-};
+export const {
+  useGetCurrentUserQuery,
+  useLazyGetAllUsersQuery,
+  useGetAllUsersQuery,
+} = usersApi;

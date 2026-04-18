@@ -10,3 +10,8 @@ export interface UserData {
   id: string;
   createdDate: string;
 }
+
+export interface GetAllUsersPayload {
+  pageNumber: number;
+  pageSize: number;
+}
