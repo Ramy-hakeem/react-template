@@ -7,7 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 function Header() {
   //   fetching
-  const { data, isLoading } = useGetCurrentUserQuery({});
+  const { data: user, isLoading } = useGetCurrentUserQuery(null);
   const [logout] = useLogoutMutation();
   //   store
   const { isAuthenticated } = useAuthStore();
@@ -17,7 +17,7 @@ function Header() {
     { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },
   ];
-  const user = data?.data;
+
   if (isLoading) {
     return;
   }

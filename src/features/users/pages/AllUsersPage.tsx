@@ -68,7 +68,6 @@ const AllUsersPage: React.FC = () => {
       },
     },
   ];
-  console.log(data);
   return (
     <DataTable<UserData>
       columns={columns}

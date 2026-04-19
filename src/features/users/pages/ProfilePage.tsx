@@ -20,7 +20,7 @@ import { Link } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '../api';
 
 export default function ProfilePage() {
-  const { data, isLoading, error } = useGetCurrentUserQuery({});
+  const { data, isLoading, error } = useGetCurrentUserQuery(null);
   const { copiedField, copyToClipboard } = useCopyToClipboard();
 
   if (isLoading) {

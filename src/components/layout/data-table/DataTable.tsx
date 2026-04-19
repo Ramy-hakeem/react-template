@@ -1,3 +1,13 @@
+import { Button } from '@/components/ui/button';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -13,19 +23,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import Searchbar from '../form/Searchbar';
-import { SortDescIcon, SortAscIcon, ChevronDown, Rows } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
+  ChevronsLeft,
+  ChevronsRight,
+  SortAscIcon,
+  SortDescIcon,
+} from 'lucide-react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import Searchbar from '../form/Searchbar';
 import { SkeletonTable } from '../skeleton/SkeletonTable';
 import { SkeletonText } from '../skeleton/SkeletonText';
 import type { DataTableProps, DataTableRef } from './types';
@@ -181,8 +186,8 @@ function DataTableComponent<TData>(
         <div className="relative overflow-hidden rounded-lg border bg-background shadow-sm">
           <div className="overflow-x-auto ">
             <Table
-              className={`min-w-full h-150 overflow-auto`}
-              style={{ minWidth: '100%', width: table.getTotalSize() }}
+              className={` overflow-auto`}
+              style={{ width: table.getTotalSize() }}
             >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -265,7 +270,7 @@ function DataTableComponent<TData>(
                           style={{
                             width: cell.column.getSize(),
                           }}
-                          className="px-4 py-3 text-left align-middle"
+                          className="px-4 py-3 text-left "
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -281,7 +286,7 @@ function DataTableComponent<TData>(
                       colSpan={columns.length}
                       className="h-48 text-center"
                     >
-                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground grow-0">
                         <div className="text-lg">No results found</div>
                         <p className="text-sm">
                           Try adjusting your search or filter to find what
@@ -293,111 +298,161 @@ function DataTableComponent<TData>(
                 )}
               </TableBody>
             </Table>
+            {numberOfPages && (
+              <div className="p-0">
+                <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between border-t bg-muted/50 font-medium [&>tr]:last:border-b-0">
+                  {/* Page Info - Left */}
+                  <div className="flex items-center justify-start">
+                    {isLoading ? (
+                      <SkeletonText lines={1} className="w-32" />
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        {numberOfPages && (
+                          <span className="ml-2 hidden md:inline">
+                            • Page {pageIndex + 1} of {numberOfPages}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pagination Controls - Center */}
+                  <div className="flex justify-center">
+                    {isLoading ? (
+                      <SkeletonText lines={1} className="w-64" />
+                    ) : (
+                      <Pagination>
+                        <PaginationContent className="flex-wrap gap-1">
+                          {/* First Page */}
+                          <PaginationItem className="hidden sm:block">
+                            <PaginationLink
+                              onClick={() => table.setPageIndex(0)}
+                              className={`cursor-pointer ${
+                                !table.getCanPreviousPage()
+                                  ? 'pointer-events-none opacity-50'
+                                  : 'hover:bg-muted'
+                              }`}
+                              aria-label="First page"
+                            >
+                              <ChevronsLeft className="h-4 w-4" />
+                            </PaginationLink>
+                          </PaginationItem>
+
+                          {/* Previous */}
+                          <PaginationItem>
+                            <PaginationPrevious
+                              onClick={() => table.previousPage()}
+                              className={`cursor-pointer ${
+                                !table.getCanPreviousPage()
+                                  ? 'pointer-events-none opacity-50'
+                                  : 'hover:bg-muted'
+                              }`}
+                              aria-label="Previous page"
+                            />
+                          </PaginationItem>
+
+                          {/* Page Numbers */}
+                          {generatePaginationLinks().map((page, index) => (
+                            <PaginationItem key={index}>
+                              {page === -1 ? (
+                                <PaginationEllipsis />
+                              ) : (
+                                <PaginationLink
+                                  onClick={() => table.setPageIndex(page)}
+                                  isActive={pageIndex === page}
+                                  className={`cursor-pointer transition-all duration-200 min-w-[2.5rem] ${
+                                    pageIndex === page
+                                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+                                      : 'hover:bg-muted'
+                                  }`}
+                                  aria-label={`Go to page ${page + 1}`}
+                                  aria-current={
+                                    pageIndex === page ? 'page' : undefined
+                                  }
+                                >
+                                  {page + 1}
+                                </PaginationLink>
+                              )}
+                            </PaginationItem>
+                          ))}
+
+                          {/* Next */}
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => table.nextPage()}
+                              className={`cursor-pointer ${
+                                pageIndex >=
+                                (numberOfPages
+                                  ? numberOfPages - 1
+                                  : table.getPageCount() - 1)
+                                  ? 'pointer-events-none opacity-50'
+                                  : 'hover:bg-muted'
+                              }`}
+                              aria-label="Next page"
+                            />
+                          </PaginationItem>
+
+                          {/* Last Page */}
+                          <PaginationItem className="hidden sm:block">
+                            <PaginationLink
+                              onClick={() =>
+                                table.setPageIndex(numberOfPages - 1)
+                              }
+                              className={`cursor-pointer ${
+                                pageIndex >=
+                                (numberOfPages
+                                  ? numberOfPages - 1
+                                  : table.getPageCount() - 1)
+                                  ? 'pointer-events-none opacity-50'
+                                  : 'hover:bg-muted'
+                              }`}
+                              aria-label="Last page"
+                            >
+                              <ChevronsRight className="h-4 w-4" />
+                            </PaginationLink>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    )}
+                  </div>
+
+                  {/* Page Size Selector - Right */}
+                  <div className="flex items-center justify-end">
+                    {isLoading ? (
+                      <SkeletonText lines={1} className="w-48" />
+                    ) : (
+                      <div className="flex items-center gap-3 rounded-md border border-input bg-background px-3 py-1.5 focus-within:ring-2 focus-within:ring-ring">
+                        <span className="text-xs text-muted-foreground">
+                          Rows
+                        </span>
+                        <input
+                          type="number"
+                          value={pageSize}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value > 0 && value <= 1000) {
+                              table.setPageSize(value);
+                              table.setPageIndex(0);
+                            }
+                          }}
+                          min="1"
+                          max="1000"
+                          className="w-20 border-none bg-transparent text-center text-sm outline-none"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          per page
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Pagination Section */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-nowrap">
-        {isLoading ? (
-          <SkeletonText lines={1} className="w-48" />
-        ) : (
-          <div className="flex gap-3 text-sm w-auto ">
-            {numberOfPages && (
-              <div className="rounded-md bg-muted px-3 py-1 text-muted-foreground ">
-                Page {pageIndex + 1} of {numberOfPages}
-              </div>
-            )}
-          </div>
-        )}
-
-        {isLoading ? (
-          <SkeletonText lines={1} className="w-64" />
-        ) : (
-          <Pagination>
-            <PaginationContent className="flex-wrap gap-1">
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => table.previousPage()}
-                  className={`cursor-pointer ${
-                    !table.getCanPreviousPage()
-                      ? 'pointer-events-none opacity-50'
-                      : 'hover:bg-muted'
-                  }`}
-                />
-              </PaginationItem>
-
-              {generatePaginationLinks().map((page, index) => (
-                <PaginationItem key={index}>
-                  {page === -1 ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink
-                      onClick={() => table.setPageIndex(page)}
-                      isActive={pageIndex === page}
-                      className={`cursor-pointer transition-colors ${
-                        pageIndex === page
-                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                          : 'hover:bg-muted'
-                      }`}
-                    >
-                      {page + 1}
-                    </PaginationLink>
-                  )}
-                </PaginationItem>
-              ))}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => table.nextPage()}
-                  className={`cursor-pointer ${
-                    pageIndex >=
-                    (numberOfPages
-                      ? numberOfPages - 1
-                      : table.getPageCount() - 1)
-                      ? 'pointer-events-none opacity-50'
-                      : 'hover:bg-muted'
-                  }`}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
-
-        {/* {isLoading ? (
-          <SkeletonText lines={1} className="w-48" />
-        ) : (
-          <div className="flex gap-3 text-sm w-auto ">
-            {totalCount && (
-              <div className="rounded-md bg-muted px-3 py-1 text-muted-foreground text-nowrap">
-                {totalCount} result
-              </div>
-            )}
-          </div>
-        )} */}
-        {isLoading ? (
-          <SkeletonText lines={1} className="w-48" />
-        ) : (
-          <div className="flex items-center gap-3 rounded-md border border-input bg-background px-3 py-1.5 focus-within:ring-2 focus-within:ring-ring">
-            <span className="text-xs text-muted-foreground">Rows</span>
-            <input
-              type="number"
-              value={pageSize}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                if (value > 0 && value <= 1000) {
-                  table.setPageSize(value);
-                  table.setPageIndex(0);
-                }
-              }}
-              min="1"
-              max="1000"
-              className="w-20 border-none bg-transparent text-center text-sm outline-none"
-            />
-            <span className="text-xs text-muted-foreground">per page</span>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

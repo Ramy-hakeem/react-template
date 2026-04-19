@@ -8,7 +8,7 @@ import { useAuthStore } from '../hooks';
 import type { LoginRequest } from '../type';
 
 export default function LoginPage() {
-  useGetCurrentUserQuery({});
+  useGetCurrentUserQuery(null);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading: isLoginPending }] = useLoginMutation();
