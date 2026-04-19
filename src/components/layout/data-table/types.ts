@@ -9,6 +9,7 @@ export type Action = {
 export type DataTableProps<TData> = {
   columns: ColumnDef<TData, unknown>[];
   numberOfPages?: number;
+  totalCount?: number;
   data: TData[];
   isLoading?: boolean;
   handleSort?: (

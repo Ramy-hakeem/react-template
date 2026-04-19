@@ -5,10 +5,10 @@ import {
 } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
 import authReducer, { logout } from '@/features/auth/authSlice';
-import { axiosBaseAPI } from './api/axiosBaseQuery';
+import { BaseAPI } from './api/baseApi';
 
 const appReducer = combineReducers({
-  [axiosBaseAPI.reducerPath]: axiosBaseAPI.reducer,
+  [BaseAPI.reducerPath]: BaseAPI.reducer,
   auth: authReducer,
 });
 export type RootState = ReturnType<typeof appReducer>;
@@ -27,8 +27,8 @@ export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      axiosBaseAPI.middleware,
-      ...(import.meta.env.DEV ? [logger] : []),
+      BaseAPI.middleware,
+      // ...(import.meta.env.DEV ? [logger] : []),
     ),
   devTools: !import.meta.env.PROD,
 });

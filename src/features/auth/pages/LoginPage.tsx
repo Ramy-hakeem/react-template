@@ -1,16 +1,18 @@
+import { useGetCurrentUserQuery } from '@/features/users/api';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../api';
-import type { LoginRequest } from '../type';
 import { useAuthStore } from '../hooks';
+import type { LoginRequest } from '../type';
 
 export default function LoginPage() {
+  useGetCurrentUserQuery(null);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [login, { isLoading: isLoginPending, isSuccess }] = useLoginMutation();
-  const { isAuthenticated, setToken } = useAuthStore();
+  const [login, { isLoading: isLoginPending }] = useLoginMutation();
+  const { isAuthenticated, setToken, token } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -25,15 +27,23 @@ export default function LoginPage() {
     const res = await login(data);
     setToken(res.data.token);
   };
-  const isLoading = isLoginPending || isSubmitting;
-  useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      navigate('/', { replace: true });
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+  const isLoading = isLoginPending || isSubmitting || token === 'initial-token';
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-indigo-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  if (isAuthenticated) {
+    navigate('/', { replace: true });
+  }
 
   return (
-    <div className="flex justify-center items-center w-full h-full">
+    <div className="flex justify-center items-center w-full  h-screen m-0 p-0">
       <div className="w-full max-w-md">
         <div className="rounded-lg bg-white p-8 shadow-xl">
           <div className="mb-8 text-center">

@@ -1,21 +1,5 @@
-import type { axiosBaseQuery } from './axiosBaseQuery';
-
-// Input type
-export interface AxiosBaseQueryArgs<
-  T = Record<string, unknown>,
-  P = Record<string, unknown>,
-> {
-  url: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  data?: T;
-  body?: T;
-  params?: P;
-  isForm?: boolean;
-}
-
-// Success response type
-export interface AxiosBaseQuerySuccess<D> {
-  isSuccess: true;
+export interface SuccessApiResponse<D> {
+  isSuccess: boolean;
   errorCode: number | string;
   traceId: string;
   data: D;
@@ -24,31 +8,11 @@ export interface AxiosBaseQuerySuccess<D> {
   totalCount?: number;
   totalPages?: number;
 }
-
-// Error response type
-export interface AxiosBaseQueryError {
-  isSuccess: false;
+export interface ErrorApiResponse {
+  isSuccess: boolean;
+  errorCode: number | string;
   traceId: string;
-  errorCode: string;
 }
-
-// Union type for return
-export type AxiosBaseQueryResult<D> =
-  | AxiosBaseQuerySuccess<D>
-  | AxiosBaseQueryError;
-
-export type FailedRequest = {
-  resolve: (token: string) => void;
-  reject: (error: AxiosBaseQueryError) => void;
-};
-
-export type CreateApiConfig =
-  | Omit<AxiosBaseQueryArgs<unknown, unknown>, 'data'>
-  | {
-      baseQuery: typeof axiosBaseQuery;
-      endpoints: () => Record<string, unknown>;
-    };
-
 export interface ApiResponse<D> {
   isSuccess: boolean;
   errorCode: number | string;

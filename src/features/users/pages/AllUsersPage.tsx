@@ -68,21 +68,19 @@ const AllUsersPage: React.FC = () => {
       },
     },
   ];
-
-  if (isLoading) {
-    return;
-  }
   return (
     <DataTable<UserData>
       columns={columns}
-      data={data?.isSuccess ? data.data : []}
+      isLoading={isLoading}
+      data={data?.data || []}
       handleDataChange={(data) => {
         getAllUsers({
           pageNumber: data.pageIndex + 1,
           pageSize: data.pageSize,
         });
       }}
-      numberOfPages={data?.totalPages || 1}
+      numberOfPages={data?.totalPages}
+      totalCount={data?.totalCount}
     />
   );
 };

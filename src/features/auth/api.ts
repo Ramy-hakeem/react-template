@@ -1,7 +1,7 @@
-import { axiosBaseAPI } from '@/app/api/axiosBaseQuery';
+import { BaseAPI } from '@/app/api/baseApi';
 import type { LoginRequest, SignupPayload } from './type';
 
-const enhancedApi = axiosBaseAPI.enhanceEndpoints({
+const enhancedApi = BaseAPI.enhanceEndpoints({
   addTagTypes: ['token'],
 });
 export const authApi = enhancedApi.injectEndpoints({

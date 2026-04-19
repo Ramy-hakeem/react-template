@@ -1,18 +1,19 @@
-import { axiosBaseAPI } from '@/app/api/axiosBaseQuery';
-import type { GetAllUsersPayload, UserData } from './types';
+import { BaseAPI, transformResponse } from '@/app/api/baseApi';
 import type { ApiResponse } from '@/app/api/types';
+import type { GetAllUsersPayload, UserData } from './types';
 
-const enhancedApi = axiosBaseAPI.enhanceEndpoints({
+const enhancedApi = BaseAPI.enhanceEndpoints({
   addTagTypes: ['users', 'user'],
 });
 export const usersApi = enhancedApi.injectEndpoints({
   endpoints: (build) => ({
-    getCurrentUser: build.query({
+    getCurrentUser: build.query<UserData, null>({
       query: () => ({
         url: '/api/Account/GetCurrentUser',
         method: 'GET',
       }),
       providesTags: ['user'],
+      transformResponse,
     }),
     getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
       query: ({ pageNumber, pageSize }) => ({
