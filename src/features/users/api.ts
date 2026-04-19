@@ -23,6 +23,22 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['users'],
     }),
+    updateProfile: build.mutation<UserData, { userName: string; email: string }>({
+      query: (body) => ({
+        url: '/api/Account/UpdateProfile',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['user'],
+      transformResponse,
+    }),
+    changePassword: build.mutation<{ success: boolean }, { currentPassword: string; newPassword: string }>({
+      query: (body) => ({
+        url: '/api/Account/ChangePassword',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -30,4 +46,6 @@ export const {
   useGetCurrentUserQuery,
   useLazyGetAllUsersQuery,
   useGetAllUsersQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = usersApi;
