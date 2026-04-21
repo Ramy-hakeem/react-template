@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
       headers.set('Authorization', `Bearer ${token}`);
     }
     // Add idempotency key for state-changing operations
-    headers.set('X-Idempotency-Key', `${UUID()}-${Date.now()}`);
+    headers.set('X-Idempotency-Key', UUID());
     return headers;
   },
 });
@@ -115,7 +115,3 @@ export const BaseAPI = createApi({
   baseQuery: baseQueryWithInterceptors,
   endpoints: () => ({}),
 });
-
-export function transformResponse<D>(res: SuccessApiResponse<D>) {
-  return res.data;
-}

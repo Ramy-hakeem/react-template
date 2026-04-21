@@ -1,6 +1,7 @@
-import { BaseAPI, transformResponse } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseApi';
 import type { ApiResponse } from '@/app/api/types';
 import type { GetAllUsersPayload, UserData } from './types';
+import { invalidateOnSuccess, transformResponse } from '@/app/api/apiHelper';
 
 const enhancedApi = BaseAPI.enhanceEndpoints({
   addTagTypes: ['users', 'user'],
@@ -23,16 +24,28 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['users'],
     }),
-    updateProfile: build.mutation<UserData, { name: string; id: string; email: string; dateOfBirth: string; gender: string }>({
+    updateProfile: build.mutation<
+      UserData,
+      {
+        name: string;
+        id: string;
+        email: string;
+        dateOfBirth: string;
+        gender: string;
+      }
+    >({
       query: (body) => ({
         url: '/api/Account/UpdateProfile',
         method: 'PATCH',
         body,
       }),
-      invalidatesTags: ['user'],
+      invalidatesTags: invalidateOnSuccess(['user']),
       transformResponse,
     }),
-    changePassword: build.mutation<{ success: boolean }, { currentPassword: string; newPassword: string }>({
+    changePassword: build.mutation<
+      { success: boolean },
+      { currentPassword: string; newPassword: string }
+    >({
       query: (body) => ({
         url: '/api/Account/ChangePassword',
         method: 'POST',
