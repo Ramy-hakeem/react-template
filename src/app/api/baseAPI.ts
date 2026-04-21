@@ -23,6 +23,8 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
+    // Add idempotency key for state-changing operations
+    headers.set('X-Idempotency-Key', `${UUID()}-${Date.now()}`);
     return headers;
   },
 });

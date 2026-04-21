@@ -1,8 +1,11 @@
 import { z } from 'zod';
 
 export const updateProfileSchema = z.object({
-  userName: z.string().min(1, 'Username is required'),
+  name: z.string().min(1, 'Name is required'),
+  id: z.string().uuid('Invalid ID'),
   email: z.string().email('Invalid email address'),
+  dateOfBirth: z.string().date('Invalid date format (YYYY-MM-DD)'),
+  gender: z.string().min(1, 'Gender is required'),
 });
 
 export const changePasswordSchema = z

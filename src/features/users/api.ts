@@ -23,7 +23,7 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['users'],
     }),
-    updateProfile: build.mutation<UserData, { userName: string; email: string }>({
+    updateProfile: build.mutation<UserData, { name: string; id: string; email: string; dateOfBirth: string; gender: string }>({
       query: (body) => ({
         url: '/api/Account/UpdateProfile',
         method: 'PATCH',

@@ -23,7 +23,13 @@ export default function UpdateProfilePage() {
     setError,
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
-    defaultValues: data ? { userName: data.userName, email: data.email } : {},
+    defaultValues: data ? {
+      name: data.name,
+      id: data.id,
+      email: data.email,
+      dateOfBirth: data.dateOfBirth,
+      gender: data.gender,
+    } : {},
   });
 
   const onSubmit = async (formData: UpdateProfileForm) => {
@@ -67,14 +73,26 @@ export default function UpdateProfilePage() {
         <h1 className="text-2xl font-semibold text-slate-800 mb-6">Update Profile</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Field>
-            <Label htmlFor="userName">Username</Label>
+            <Label htmlFor="name">Name</Label>
             <Input
-              id="userName"
-              {...register('userName')}
-              placeholder="Enter your username"
+              id="name"
+              {...register('name')}
+              placeholder="Enter your name"
             />
-            {errors.userName && (
-              <p className="text-red-600 text-sm">{errors.userName.message}</p>
+            {errors.name && (
+              <p className="text-red-600 text-sm">{errors.name.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="id">ID</Label>
+            <Input
+              id="id"
+              {...register('id')}
+              placeholder="Your user ID"
+              disabled
+            />
+            {errors.id && (
+              <p className="text-red-600 text-sm">{errors.id.message}</p>
             )}
           </Field>
           <Field>
@@ -87,6 +105,29 @@ export default function UpdateProfilePage() {
             />
             {errors.email && (
               <p className="text-red-600 text-sm">{errors.email.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              {...register('dateOfBirth')}
+              placeholder="Enter your date of birth"
+            />
+            {errors.dateOfBirth && (
+              <p className="text-red-600 text-sm">{errors.dateOfBirth.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="gender">Gender</Label>
+            <Input
+              id="gender"
+              {...register('gender')}
+              placeholder="Enter your gender"
+            />
+            {errors.gender && (
+              <p className="text-red-600 text-sm">{errors.gender.message}</p>
             )}
           </Field>
           {errors.root && (
