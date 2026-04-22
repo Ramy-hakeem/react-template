@@ -6,6 +6,8 @@ import ProfilePage from '@/features/users/pages/ProfilePage';
 import { createBrowserRouter } from 'react-router-dom';
 import AllUsersPage from '@/features/users/pages/AllUsersPage';
 import ProtectedRoute from './providers/ProtectedRoute';
+import UpdateProfilePage from '@/features/users/pages/UpdateProfilePage';
+import ChangePasswordPage from '@/features/users/pages/ChangePasswordPage';
 
 export const router = createBrowserRouter([
   // Public route
@@ -29,6 +31,14 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         element: <ProfilePage />,
+      },
+      {
+        path: 'update-profile',
+        element: <UpdateProfilePage />,
+      },
+      {
+        path: 'change-password',
+        element: <ChangePasswordPage />,
       },
       {
         path: 'add-user',

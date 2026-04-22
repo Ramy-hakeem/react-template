@@ -1,6 +1,7 @@
-import { BaseAPI, transformResponse } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseAPI';
 import type { ApiResponse } from '@/app/api/types';
-import type { GetAllUsersPayload, UserData } from './types';
+import type { GetAllUsersPayload, UpdateProfilePayload, UserData } from './types';
+import { invalidateOnSuccess, transformResponse } from '@/app/api/apiHelper';
 
 const enhancedApi = BaseAPI.enhanceEndpoints({
   addTagTypes: ['users', 'user'],
@@ -23,6 +24,28 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['users'],
     }),
+    updateProfile: build.mutation<
+      UserData,
+      UpdateProfilePayload
+    >({
+      query: (body) => ({
+        url: '/api/Account/UpdateUser',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: invalidateOnSuccess(['user']),
+      transformResponse,
+    }),
+    changePassword: build.mutation<
+      { success: boolean },
+      { currentPassword: string; newPassword: string }
+    >({
+      query: (body) => ({
+        url: '/api/Account/ChangeUserPassword',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -30,4 +53,6 @@ export const {
   useGetCurrentUserQuery,
   useLazyGetAllUsersQuery,
   useGetAllUsersQuery,
+  useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = usersApi;

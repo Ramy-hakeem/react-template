@@ -1,4 +1,4 @@
-import { BaseAPI } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseAPI';
 import type { LoginRequest, SignupPayload } from './type';
 
 const enhancedApi = BaseAPI.enhanceEndpoints({

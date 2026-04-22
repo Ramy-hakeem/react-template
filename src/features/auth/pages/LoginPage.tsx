@@ -25,7 +25,7 @@ export default function LoginPage() {
   });
   const onSubmit = async (data: LoginRequest) => {
     const res = await login(data);
-    setToken(res.data.token);
+    setToken(res.data.data.token);
   };
   const isLoading = isLoginPending || isSubmitting || token === 'initial-token';
   if (isLoading) {

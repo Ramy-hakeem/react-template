@@ -13,7 +13,7 @@ import type { SuccessApiResponse } from './types';
 // Create mutex to prevent multiple refresh token requests
 const mutex = new Mutex();
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.PROD ? import.meta.env.VITE_API_URL : '',
+  baseUrl: import.meta.env.VITE_API_URL ,
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     headers.set('Content-Type', 'application/json');
@@ -23,6 +23,8 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
+    // Add idempotency key for state-changing operations
+    headers.set('X-Idempotency-Key', UUID());
     return headers;
   },
 });
@@ -113,7 +115,3 @@ export const BaseAPI = createApi({
   baseQuery: baseQueryWithInterceptors,
   endpoints: () => ({}),
 });
-
-export function transformResponse<D>(res: SuccessApiResponse<D>) {
-  return res.data;
-}

@@ -46,7 +46,7 @@ export default function ProfilePage() {
             Failed to Load Profile
           </h2>
           <p className="text-slate-500 mb-4">
-            {error?.message ||
+            {(error as { data?: { message?: string } })?.data?.message ||
               'Unable to fetch user profile data. Please try again later.'}
           </p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
@@ -60,10 +60,24 @@ export default function ProfilePage() {
       <div className="lg:col-span-2 space-y-6">
         {/* Personal Information */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <User className="h-5 w-5 text-indigo-600" />
-            Personal Information
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+              <User className="h-5 w-5 text-indigo-600" />
+              Personal Information
+            </h3>
+            <div className="flex gap-2">
+              <Link to="/update-profile">
+                <Button variant="outline" size="sm">
+                  Edit Profile
+                </Button>
+              </Link>
+              <Link to="/change-password">
+                <Button variant="outline" size="sm">
+                  Change Password
+                </Button>
+              </Link>
+            </div>
+          </div>
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-slate-100">
               <span className="text-sm font-medium text-slate-500 w-32">
@@ -211,7 +225,7 @@ export default function ProfilePage() {
               size={'lg'}
               className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
             >
-              <Link to={''} className="flex gap-3 items-center">
+              <Link to={'/update-profile'} className="flex gap-3 items-center">
                 <User className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
                 <span className="text-sm text-slate-600 group-hover:text-indigo-600">
                   Update Profile
@@ -223,7 +237,7 @@ export default function ProfilePage() {
               size={'lg'}
               className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
             >
-              <Link to={''} className="flex gap-3 items-center">
+              <Link to={'/change-password'} className="flex gap-3 items-center">
                 <Lock className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
                 <span className="text-sm text-slate-600 group-hover:text-indigo-600">
                   Change Password
