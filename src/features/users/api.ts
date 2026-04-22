@@ -41,7 +41,7 @@ export const usersApi = enhancedApi.injectEndpoints({
       { currentPassword: string; newPassword: string }
     >({
       query: (body) => ({
-        url: '/api/Account/ChangePassword',
+        url: '/api/Account/ChangeUserPassword',
         method: 'POST',
         body,
       }),

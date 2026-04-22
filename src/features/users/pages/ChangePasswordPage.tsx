@@ -31,8 +31,8 @@ export default function ChangePasswordPage() {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       }).unwrap();
-      reset();
-      navigate('/profile');
+      //reset();
+      //navigate('/profile');
     } catch (err: any) {
       setError('root', { message: err?.data?.message || 'Failed to change password' });
     }

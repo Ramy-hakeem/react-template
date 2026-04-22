@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -21,16 +22,29 @@ export default function UpdateProfilePage() {
     handleSubmit,
     formState: { errors },
     setError,
+    reset,
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
-    defaultValues: data ? {
-      name: data.name,
-      id: data.id,
-      email: data.email,
-      dateOfBirth: data.dateOfBirth,
-      gender: data.gender,
-    } : {},
+    defaultValues: {
+      name: '',
+      id: '',
+      email: '',
+      dateOfBirth: '',
+      gender: '',
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        name: data.name,
+        id: data.id,
+        email: data.email,
+        dateOfBirth: data.dateOfBirth,
+        gender: data.gender,
+      });
+    }
+  }, [data, reset]);
 
   const onSubmit = async (formData: UpdateProfileForm) => {
     try {
@@ -72,6 +86,7 @@ export default function UpdateProfilePage() {
       <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
         <h1 className="text-2xl font-semibold text-slate-800 mb-6">Update Profile</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input type="hidden" {...register('id')} />
           <Field>
             <Label htmlFor="name">Name</Label>
             <Input
@@ -84,24 +99,14 @@ export default function UpdateProfilePage() {
             )}
           </Field>
           <Field>
-            <Label htmlFor="id">ID</Label>
-            <Input
-              id="id"
-              {...register('id')}
-              placeholder="Your user ID"
-              disabled
-            />
-            {errors.id && (
-              <p className="text-red-600 text-sm">{errors.id.message}</p>
-            )}
-          </Field>
-          <Field>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               {...register('email')}
               placeholder="Enter your email"
+              disabled
+              className="bg-slate-100 text-slate-500 cursor-not-allowed"
             />
             {errors.email && (
               <p className="text-red-600 text-sm">{errors.email.message}</p>
