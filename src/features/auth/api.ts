@@ -1,5 +1,6 @@
-import { BaseAPI } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseAPI';
 import type { LoginRequest, SignupPayload } from './type';
+import { transformResponse } from '@/app/api/apiHelper';
 
 const enhancedApi = BaseAPI.enhanceEndpoints({
   addTagTypes: ['token'],
@@ -11,6 +12,7 @@ export const authApi = enhancedApi.injectEndpoints({
         url: '/api/Authentication/Login',
         method: 'POST',
         body: credentials,
+        transformResponse,
       }),
     }),
     signup: build.mutation({

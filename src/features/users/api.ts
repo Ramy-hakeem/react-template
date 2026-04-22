@@ -1,4 +1,4 @@
-import { BaseAPI } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseAPI';
 import type { ApiResponse } from '@/app/api/types';
 import type { GetAllUsersPayload, UserData } from './types';
 import { invalidateOnSuccess, transformResponse } from '@/app/api/apiHelper';
