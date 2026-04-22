@@ -22,7 +22,6 @@ import { useGetCurrentUserQuery } from '../api';
 export default function ProfilePage() {
   const { data, isLoading, error } = useGetCurrentUserQuery(null);
   const { copiedField, copyToClipboard } = useCopyToClipboard();
-  console.log('error', error);
 
   if (isLoading) {
     return (
