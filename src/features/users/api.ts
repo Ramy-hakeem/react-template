@@ -1,6 +1,6 @@
-import { BaseAPI } from '@/app/api/baseApi';
+import { BaseAPI } from '@/app/api/baseAPI';
 import type { ApiResponse } from '@/app/api/types';
-import type { GetAllUsersPayload, UserData } from './types';
+import type { GetAllUsersPayload, UpdateProfilePayload, UserData } from './types';
 import { invalidateOnSuccess, transformResponse } from '@/app/api/apiHelper';
 
 const enhancedApi = BaseAPI.enhanceEndpoints({
@@ -26,16 +26,10 @@ export const usersApi = enhancedApi.injectEndpoints({
     }),
     updateProfile: build.mutation<
       UserData,
-      {
-        name: string;
-        id: string;
-        email: string;
-        dateOfBirth: string;
-        gender: string;
-      }
+      UpdateProfilePayload
     >({
       query: (body) => ({
-        url: '/api/Account/UpdateProfile',
+        url: '/api/Account/UpdateUser',
         method: 'PATCH',
         body,
       }),

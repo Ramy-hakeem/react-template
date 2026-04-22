@@ -1,3 +1,6 @@
+import type z from "zod";
+import type { updateProfileSchema } from "./validationSchemas";
+
 export interface UserData {
   userName: string;
   name: string;
@@ -18,3 +21,5 @@ export interface GetAllUsersPayload {
   pageNumber: number;
   pageSize: number;
 }
+
+export type UpdateProfilePayload = z.infer<typeof updateProfileSchema>;
