@@ -31,13 +31,7 @@ export const usersApi = enhancedApi.injectEndpoints({
     }),
     updateProfile: build.mutation<
       UserData,
-      {
-        name: string;
-        id: string;
-        email: string;
-        dateOfBirth: string;
-        gender: string;
-      }
+      UpdateProfilePayload
     >({
       query: (body) => ({
         url: '/api/Account/UpdateUser',
@@ -52,7 +46,7 @@ export const usersApi = enhancedApi.injectEndpoints({
       { currentPassword: string; newPassword: string }
     >({
       query: (body) => ({
-        url: '/api/Account/ChangePassword',
+        url: '/api/Account/ChangeUserPassword',
         method: 'POST',
         body,
       }),
