@@ -35,7 +35,7 @@ export const usersApi = enhancedApi.injectEndpoints({
       }
     >({
       query: (body) => ({
-        url: '/api/Account/UpdateProfile',
+        url: '/api/Account/UpdateUser',
         method: 'PATCH',
         body,
       }),
