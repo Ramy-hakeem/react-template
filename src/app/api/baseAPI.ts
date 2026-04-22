@@ -12,7 +12,7 @@ import { Mutex } from 'async-mutex';
 // Create mutex to prevent multiple refresh token requests
 const mutex = new Mutex();
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_URL ,
+  baseUrl: import.meta.env.PROD ? import.meta.env.VITE_API_URL : '',
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     headers.set('Content-Type', 'application/json');
