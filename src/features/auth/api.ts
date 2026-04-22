@@ -1,8 +1,8 @@
-import { BaseAPI } from '@/app/api/baseAPI';
+import { BaseApi } from '@/app/api/baseApi';
 import type { LoginRequest, SignupPayload } from './type';
 import { transformResponse } from '@/app/api/apiHelper';
 
-const enhancedApi = BaseAPI.enhanceEndpoints({
+const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['token'],
 });
 export const authApi = enhancedApi.injectEndpoints({

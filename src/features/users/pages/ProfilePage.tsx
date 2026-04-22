@@ -22,6 +22,7 @@ import { useGetCurrentUserQuery } from '../api';
 export default function ProfilePage() {
   const { data, isLoading, error } = useGetCurrentUserQuery(null);
   const { copiedField, copyToClipboard } = useCopyToClipboard();
+  console.log('error', error);
 
   if (isLoading) {
     return (
@@ -33,7 +34,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
   // Error state
   if (error || !data) {
     return (
@@ -45,10 +45,10 @@ export default function ProfilePage() {
           <h2 className="text-xl font-semibold text-slate-800 mb-2">
             Failed to Load Profile
           </h2>
-          <p className="text-slate-500 mb-4">
-            {error?.data?.message ||
+          {/* <p className="text-slate-500 mb-4">
+            {error?.errorCode ||
               'Unable to fetch user profile data. Please try again later.'}
-          </p>
+          </p> */}
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>

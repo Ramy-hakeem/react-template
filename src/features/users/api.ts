@@ -1,9 +1,13 @@
-import { BaseAPI } from '@/app/api/baseAPI';
-import type { ApiResponse } from '@/app/api/types';
+import { BaseApi } from '@/app/api/baseApi';
+import type { ApiResponse, ErrorApiResponse } from '@/app/api/types';
 import type { GetAllUsersPayload, UserData } from './types';
-import { invalidateOnSuccess, transformResponse } from '@/app/api/apiHelper';
+import {
+  invalidateOnSuccess,
+  transformErrorResponse,
+  transformResponse,
+} from '@/app/api/apiHelper';
 
-const enhancedApi = BaseAPI.enhanceEndpoints({
+const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['users', 'user'],
 });
 export const usersApi = enhancedApi.injectEndpoints({
@@ -15,6 +19,7 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['user'],
       transformResponse,
+      transformErrorResponse: transformErrorResponse,
     }),
     getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
       query: ({ pageNumber, pageSize }) => ({

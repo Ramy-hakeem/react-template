@@ -8,7 +8,6 @@ import {
 } from '@reduxjs/toolkit/query/react';
 
 import { Mutex } from 'async-mutex';
-import type { SuccessApiResponse } from './types';
 
 // Create mutex to prevent multiple refresh token requests
 const mutex = new Mutex();
@@ -110,8 +109,8 @@ const baseQueryWithInterceptors: BaseQueryFn = async (
   return result;
 };
 
-export const BaseAPI = createApi({
-  reducerPath: 'baseAPI',
+export const BaseApi = createApi({
+  reducerPath: 'baseApi',
   baseQuery: baseQueryWithInterceptors,
   endpoints: () => ({}),
 });
