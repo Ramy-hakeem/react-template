@@ -65,18 +65,7 @@ export default function ProfilePage() {
               <User className="h-5 w-5 text-indigo-600" />
               Personal Information
             </h3>
-            <div className="flex gap-2">
-              <Link to="/update-profile">
-                <Button variant="outline" size="sm">
-                  Edit Profile
-                </Button>
-              </Link>
-              <Link to="/change-password">
-                <Button variant="outline" size="sm">
-                  Change Password
-                </Button>
-              </Link>
-            </div>
+          
           </div>
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-slate-100">
