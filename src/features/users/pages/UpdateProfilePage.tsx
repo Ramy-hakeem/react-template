@@ -31,17 +31,21 @@ export default function UpdateProfilePage() {
       email: '',
       dateOfBirth: '',
       gender: '',
+      UserName: '',
+      PhoneNumber: '',
     },
   });
 
   useEffect(() => {
     if (data) {
       reset({
-        name: data.name,
-        id: data.id,
-        email: data.email,
-        dateOfBirth: data.dateOfBirth,
-        gender: data.gender,
+        name: data.name || '',
+        id: data.id || '',
+        email: data.email || '',
+        dateOfBirth: data.dateOfBirth || '',
+        gender: data.gender === 'Male' ? '1' : data.gender === 'Female' ? '2' : data.gender || '',
+        UserName: data.userName || '',
+        PhoneNumber: data.phoneNumber || '',
       });
     }
   }, [data, reset]);
@@ -126,13 +130,41 @@ export default function UpdateProfilePage() {
           </Field>
           <Field>
             <Label htmlFor="gender">Gender</Label>
-            <Input
+            <select
               id="gender"
               {...register('gender')}
-              placeholder="Enter your gender"
-            />
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">Select your gender</option>
+              <option value="1">Male</option>
+              <option value="2">Female</option>
+            </select>
             {errors.gender && (
               <p className="text-red-600 text-sm">{errors.gender.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="UserName">UserName</Label>
+            <Input
+              id="UserName"
+              {...register('UserName')}
+              placeholder="Enter your username"
+              disabled
+              className="bg-slate-100 text-slate-500 cursor-not-allowed"
+            />
+            {errors.UserName && (
+              <p className="text-red-600 text-sm">{errors.UserName.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="PhoneNumber">Phone Number</Label>
+            <Input
+              id="PhoneNumber"
+              {...register('PhoneNumber')}
+              placeholder="Enter your phone number"
+            />
+            {errors.PhoneNumber && (
+              <p className="text-red-600 text-sm">{errors.PhoneNumber.message}</p>
             )}
           </Field>
           {errors.root && (

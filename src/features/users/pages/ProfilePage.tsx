@@ -48,7 +48,7 @@ export default function ProfilePage() {
           <p className="text-slate-500 mb-4">
             {(error as { data?: { message?: string } })?.data?.message ||
               'Unable to fetch user profile data. Please try again later.'}
-          </p> */}
+          </p> 
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>

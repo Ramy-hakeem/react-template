@@ -6,7 +6,9 @@ export const updateProfileSchema = z.object({
   // email: z.email('Invalid email address'),
   email: z.string('Invalid email address'),
   dateOfBirth: z.string().date('Invalid date format (YYYY-MM-DD)'),
-  gender: z.string().min(1, 'Gender is required'),
+  gender: z.string().regex(/^[12]$/, 'Please select a gender'),
+  UserName: z.string().min(1, 'UserName is required'),
+  PhoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number'),
 });
 
 export const changePasswordSchema = z

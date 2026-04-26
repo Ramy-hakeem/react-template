@@ -15,6 +15,7 @@ export interface UserData {
   }[];
   id: string;
   createdDate: string;
+  phoneNumber: string;
 }
 
 export interface GetAllUsersPayload {
