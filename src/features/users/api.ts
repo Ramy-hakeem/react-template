@@ -1,5 +1,5 @@
 import { BaseApi } from '@/app/api/baseApi';
-import type { ApiResponse} from '@/app/api/types';
+import type { ApiResponse } from '@/app/api/types';
 import type {
   GetAllUsersPayload,
   UpdateProfilePayload,
