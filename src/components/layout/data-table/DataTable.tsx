@@ -46,9 +46,9 @@ function DataTableComponent<TData>(
   ref: React.ForwardedRef<DataTableRef>,
 ) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<{ id: string; desc: boolean }>({
-    id: '',
-    desc: false,
+  const [sortBy, setSortBy] = useState<{ propertyName: string; direction: "desc" | "asc" | "" }>({
+    propertyName: '',
+    direction: '',
   });
 
   const table = useReactTable({
@@ -57,6 +57,9 @@ function DataTableComponent<TData>(
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      sorting: sortBy.propertyName ? [{ id: sortBy.propertyName, desc: sortBy.direction === 'desc' }] : [],
+    },
     manualSorting: true,
     manualPagination: true,
     columnResizeMode: 'onChange',
@@ -76,15 +79,15 @@ function DataTableComponent<TData>(
         table.resetGlobalFilter();
         setSearchTerm('');
         handleDataChange?.({
-          sortBy: { id: '', desc: false },
+          sortBy: { propertyName: '', direction: "" },
           searchTerm: '',
-          pageIndex: 0,
+          pageIndex: 1,
           pageSize: table.getState().pagination.pageSize,
         });
       },
       getCurrentState: () => ({
         searchTerm,
-        sortBy,
+        sortBy:{ propertyName: sortBy.propertyName, direction: sortBy.direction },
         pageIndex: table.getState().pagination.pageIndex,
         pageSize: table.getState().pagination.pageSize,
       }),
@@ -92,7 +95,7 @@ function DataTableComponent<TData>(
         setSearchTerm('');
       },
       resetSorting: () => {
-        setSortBy({ id: '', desc: false });
+        setSortBy({ propertyName: '', direction: "" });
       },
       resetPagination: () => {
         table.setPageIndex(0);
@@ -101,7 +104,7 @@ function DataTableComponent<TData>(
     [searchTerm, sortBy, table, handleDataChange],
   );
 
-  const pageIndex = table.getState().pagination.pageIndex;
+  const pageIndex = table.getState().pagination.pageIndex+1
   const pageSize = table.getState().pagination.pageSize;
 
   useEffect(() => {
@@ -160,7 +163,7 @@ function DataTableComponent<TData>(
                     handleDataChange({
                       sortBy,
                       searchTerm,
-                      pageIndex: 0,
+                      pageIndex: 1,
                       pageSize,
                     });
                   }
@@ -215,11 +218,33 @@ function DataTableComponent<TData>(
                             {header.column.getCanSort() && (
                               <Button
                                 onClick={() => {
-                                  header.column.toggleSorting();
-                                  setSortBy({
-                                    id: header.id,
-                                    desc:
-                                      header.column.getIsSorted() === 'desc',
+                                  setSortBy((currentSort) => {
+                                    const isSameColumn =
+                                      currentSort.propertyName === header.column.id;
+
+                                    table.setPageIndex(0);
+
+                                    // First click on new column => asc
+                                    if (!isSameColumn) {
+                                      return {
+                                        propertyName: header.column.id,
+                                        direction: "asc",
+                                      };
+                                    }
+
+                                    // Second click on same column => desc
+                                    if (!currentSort.direction || currentSort.direction === 'asc') {
+                                      return {
+                                        propertyName: header.column.id,
+                                        direction: "desc",
+                                      };
+                                    }
+
+                                    // Third click on same column => clear sorting
+                                    return {
+                                      propertyName: '',
+                                      direction: "",
+                                    };
                                   });
                                 }}
                                 variant="ghost"

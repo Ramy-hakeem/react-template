@@ -1,10 +1,15 @@
 import { DataTable } from '@/components/layout/data-table/DataTable';
 import { type ColumnDef } from '@tanstack/react-table';
+import { useCallback } from 'react';
 import { useLazyGetAllUsersQuery } from '../api';
 import type { UserData } from '../types';
 
+
 const AllUsersPage: React.FC = () => {
   const [getAllUsers, { data, isLoading }] = useLazyGetAllUsersQuery();
+
+ 
+
   const columns: ColumnDef<UserData>[] = [
     {
       accessorKey: 'id',
@@ -25,15 +30,21 @@ const AllUsersPage: React.FC = () => {
       accessorKey: 'roles',
       header: 'Role',
       cell: (info) => {
-        const role = info.getValue<string>()[0];
+        const roles = info.getValue<UserData['roles']>();
+        const role = roles?.[0] || 'User';
+
         const roleColors = {
           Admin: 'bg-purple-100 text-purple-800',
           User: 'bg-blue-100 text-blue-800',
           Moderator: 'bg-green-100 text-green-800',
         };
+
         return (
           <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[role as keyof typeof roleColors]}`}
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              roleColors[role as keyof typeof roleColors] ||
+              'bg-gray-100 text-gray-800'
+            }`}
           >
             {role}
           </span>
@@ -45,21 +56,28 @@ const AllUsersPage: React.FC = () => {
       header: 'Status',
       cell: (info) => {
         const status = info.getValue<boolean>() ? 'Active' : 'Inactive';
+
         const statusColors = {
           Active: 'bg-green-100 text-green-800',
           Inactive: 'bg-red-100 text-red-800',
         };
+
         const statusDots = {
           Active: 'bg-green-500',
           Inactive: 'bg-red-500',
         };
+
         return (
           <div className="flex items-center gap-2">
             <div
-              className={`w-2 h-2 rounded-full ${statusDots[status as keyof typeof statusDots]}`}
+              className={`w-2 h-2 rounded-full ${
+                statusDots[status as keyof typeof statusDots]
+              }`}
             ></div>
             <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status as keyof typeof statusColors]}`}
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                statusColors[status as keyof typeof statusColors]
+              }`}
             >
               {status}
             </span>
@@ -68,16 +86,19 @@ const AllUsersPage: React.FC = () => {
       },
     },
   ];
+
   return (
     <DataTable<UserData>
       columns={columns}
       isLoading={isLoading}
       data={data?.data || []}
-      handleDataChange={(data) => {
-        getAllUsers({
-          pageNumber: data.pageIndex + 1,
-          pageSize: data.pageSize,
-        });
+      handleDataChange={({pageIndex ,pageSize, searchTerm, sortBy})=>{
+       getAllUsers({
+        pageNumber: pageIndex,
+        pageSize,
+        searchTerm,
+        sorts:[ sortBy],
+      }); 
       }}
       numberOfPages={data?.totalPages}
       totalCount={data?.totalCount}
