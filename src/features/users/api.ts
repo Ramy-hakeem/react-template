@@ -1,6 +1,7 @@
 import { BaseApi } from '@/app/api/baseApi';
 import type { ApiResponse } from '@/app/api/types';
 import type {
+  ChangePasswordPayload,
   GetAllUsersPayload,
   UpdateProfilePayload,
   UserData,
@@ -12,7 +13,7 @@ import {
 } from '@/app/api/apiHelper';
 
 const enhancedApi = BaseApi.enhanceEndpoints({
-  addTagTypes: ['users', 'user'],
+  addTagTypes: ['users', 'currentUser', 'user'],
 });
 export const usersApi = enhancedApi.injectEndpoints({
   endpoints: (build) => ({
@@ -21,17 +22,9 @@ export const usersApi = enhancedApi.injectEndpoints({
         url: '/api/Account/GetCurrentUser',
         method: 'GET',
       }),
-      providesTags: ['user'],
+      providesTags: ['currentUser'],
       transformResponse,
       transformErrorResponse: transformErrorResponse,
-    }),
-    getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
-      query: ({ pageNumber, pageSize }) => ({
-        url: '/api/Account/list',
-        method: 'POST',
-        body: { pageNumber, pageSize },
-      }),
-      providesTags: ['users'],
     }),
     updateProfile: build.mutation<UserData, UpdateProfilePayload>({
       query: (body) => ({
@@ -42,15 +35,55 @@ export const usersApi = enhancedApi.injectEndpoints({
       invalidatesTags: invalidateOnSuccess(['user']),
       transformResponse,
     }),
-    changePassword: build.mutation<
-      { success: boolean },
-      { currentPassword: string; newPassword: string }
-    >({
-      query: (body) => ({
+    changePassword: build.mutation<null, ChangePasswordPayload>({
+      query: (id) => ({
         url: '/api/Account/ChangeUserPassword',
         method: 'POST',
-        body,
+        body: { id },
       }),
+    }),
+    getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
+      query: ({ pageNumber, pageSize }) => ({
+        url: '/api/Account/list',
+        method: 'POST',
+        body: { pageNumber, pageSize },
+      }),
+      providesTags: ['users'],
+    }),
+    getUser: build.query<UserData, string>({
+      query: (id) => ({
+        url: '/api/Account/GetUser',
+        method: 'GET',
+        params: { id },
+      }),
+      transformResponse,
+      providesTags: (_result, _err, id) => {
+        return [{ type: 'user', id }];
+      },
+    }),
+    deleteUser: build.mutation<null, string>({
+      query: (id) => ({
+        url: '/api/Account/DeleteUser',
+        method: 'DELETE',
+        body: { id },
+      }),
+      invalidatesTags: invalidateOnSuccess(['users']),
+    }),
+    UpdateUserStatus: build.mutation<null, string>({
+      query: (id) => ({
+        url: '/api/Account/DeleteUser',
+        method: 'DELETE',
+        body: { id },
+      }),
+      invalidatesTags: invalidateOnSuccess(['users']),
+    }),
+    setPassword: build.mutation<null, string>({
+      query: (id) => ({
+        url: '/api/Account/DeleteUser',
+        method: 'DELETE',
+        body: { id },
+      }),
+      invalidatesTags: invalidateOnSuccess(['users']),
     }),
   }),
 });
@@ -59,6 +92,10 @@ export const {
   useGetCurrentUserQuery,
   useLazyGetAllUsersQuery,
   useGetAllUsersQuery,
+  useGetUserQuery,
   useUpdateProfileMutation,
   useChangePasswordMutation,
+  useDeleteUserMutation,
+  useUpdateUserStatusMutation,
+  useSetPasswordMutation,
 } = usersApi;

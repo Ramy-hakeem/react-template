@@ -1,14 +1,19 @@
 import { DataTable } from '@/components/layout/data-table/DataTable';
 import { type ColumnDef } from '@tanstack/react-table';
-import { useLazyGetAllUsersQuery } from '../api';
+import { useDeleteUserMutation, useLazyGetAllUsersQuery } from '../api';
 import type { UserData } from '../types';
+import { TableAction } from '@/components/layout/data-table/TableAction';
+import { useNavigate } from 'react-router-dom';
 
 const AllUsersPage: React.FC = () => {
   const [getAllUsers, { data, isLoading }] = useLazyGetAllUsersQuery();
+  const [deleteUser] = useDeleteUserMutation();
+  const navigate = useNavigate();
   const columns: ColumnDef<UserData>[] = [
     {
       accessorKey: 'id',
       header: 'ID',
+      enableSorting: false,
     },
     {
       accessorKey: 'name',
@@ -67,6 +72,30 @@ const AllUsersPage: React.FC = () => {
         );
       },
     },
+    {
+      header: 'Action',
+      cell({ row }) {
+        const { id } = row.original;
+        return (
+          <TableAction
+            actions={[
+              {
+                label: 'Details',
+                onClick() {
+                  navigate(id);
+                },
+              },
+              {
+                label: 'Delete',
+                onClick: () => {
+                  deleteUser(id);
+                },
+              },
+            ]}
+          />
+        );
+      },
+    },
   ];
   return (
     <DataTable<UserData>
@@ -74,6 +103,7 @@ const AllUsersPage: React.FC = () => {
       isLoading={isLoading}
       data={data?.data || []}
       handleDataChange={(data) => {
+        console.log('table data', data);
         getAllUsers({
           pageNumber: data.pageIndex + 1,
           pageSize: data.pageSize,
