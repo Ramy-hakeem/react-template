@@ -20,7 +20,6 @@ export default function ChangePasswordPage() {
     handleSubmit,
     formState: { errors },
     setError,
-    reset,
   } = useForm<ChangePasswordForm>({
     resolver: zodResolver(changePasswordSchema),
   });
@@ -30,18 +29,22 @@ export default function ChangePasswordPage() {
       await changePassword({
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
-      }).unwrap();
+      });
       //reset();
       //navigate('/profile');
     } catch (err: any) {
-      setError('root', { message: err?.data?.message || 'Failed to change password' });
+      setError('root', {
+        message: err?.data?.message || 'Failed to change password',
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-        <h1 className="text-2xl font-semibold text-slate-800 mb-6">Change Password</h1>
+        <h1 className="text-2xl font-semibold text-slate-800 mb-6">
+          Change Password
+        </h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Field>
             <Label htmlFor="currentPassword">Current Password</Label>
@@ -52,7 +55,9 @@ export default function ChangePasswordPage() {
               placeholder="Enter your current password"
             />
             {errors.currentPassword && (
-              <p className="text-red-600 text-sm">{errors.currentPassword.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.currentPassword.message}
+              </p>
             )}
           </Field>
           <Field>
@@ -64,7 +69,9 @@ export default function ChangePasswordPage() {
               placeholder="Enter your new password"
             />
             {errors.newPassword && (
-              <p className="text-red-600 text-sm">{errors.newPassword.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.newPassword.message}
+              </p>
             )}
           </Field>
           <Field>
@@ -76,7 +83,9 @@ export default function ChangePasswordPage() {
               placeholder="Confirm your new password"
             />
             {errors.confirmNewPassword && (
-              <p className="text-red-600 text-sm">{errors.confirmNewPassword.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.confirmNewPassword.message}
+              </p>
             )}
           </Field>
           {errors.root && (
@@ -86,7 +95,11 @@ export default function ChangePasswordPage() {
             <Button type="submit" disabled={isLoading}>
               {isLoading ? 'Changing...' : 'Change Password'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/profile')}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/profile')}
+            >
               Cancel
             </Button>
           </div>

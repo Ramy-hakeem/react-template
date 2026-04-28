@@ -185,10 +185,7 @@ function DataTableComponent<TData>(
       ) : (
         <div className="relative overflow-hidden rounded-lg border bg-background shadow-sm">
           <div className="overflow-x-auto ">
-            <Table
-              className={` overflow-auto`}
-              style={{ width: table.getTotalSize() }}
-            >
+            <Table className={` overflow-auto min-w-full`}>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow
@@ -267,9 +264,6 @@ function DataTableComponent<TData>(
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          style={{
-                            width: cell.column.getSize(),
-                          }}
                           className="px-4 py-3 text-left "
                         >
                           {flexRender(

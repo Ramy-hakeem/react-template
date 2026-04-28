@@ -27,7 +27,6 @@ export const authApi = enhancedApi.injectEndpoints({
       query: () => ({
         url: '/api/Authentication/Logout',
         method: 'POST',
-        skipIdempotencyKey: true,
       }),
 
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {

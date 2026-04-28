@@ -1,6 +1,5 @@
 import { logout, setToken } from '@/features/auth/authSlice';
 import UUID from '@/utils/generateUUID';
-import { addState, getState } from '@/utils/localStorageHandler';
 import {
   createApi,
   fetchBaseQuery,
@@ -9,7 +8,7 @@ import {
 
 import { Mutex } from 'async-mutex';
 import type { BaseQueryWithInterceptors } from './types';
-
+const impotencyKeys: Record<string, string> = {};
 // Create mutex to prevent multiple refresh token requests
 const mutex = new Mutex();
 const baseQuery = fetchBaseQuery({
@@ -23,31 +22,30 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
-    // Add idempotency key for state-changing operations
     return headers;
   },
 });
+
 const baseQueryWithInterceptors: BaseQueryFn<
   BaseQueryWithInterceptors
 > = async (args, api, extraOptions) => {
   await mutex.waitForUnlock();
-  console.log('api', api);
-  // Get the store dynamically (similar to your dynamic import)
-  const modifiedArgs = typeof args === 'object' ? { ...args } : args;
+  const modifiedArgs = { ...args };
   modifiedArgs.headers = modifiedArgs.headers || {};
+  const url = modifiedArgs.url;
 
   // ====== REQUEST INTERCEPTOR LOGIC ======
 
-  // Handle UUID logic
-  if (!getState('uuid')) {
-    addState('uuid', UUID());
-  }
-  const uuid = getState('uuid');
   if (!modifiedArgs.skipIdempotencyKey) {
     // Handle Idempotency Key
-    const existingKey = modifiedArgs.headers['X-Idempotency-Key'];
-    const idempotencyKey = existingKey || `${uuid}-${modifiedArgs.url}`;
-    modifiedArgs.headers['X-Idempotency-Key'] = idempotencyKey;
+    const existingKey = impotencyKeys[url];
+    if (existingKey) {
+      modifiedArgs.headers['X-Idempotency-Key'] = existingKey;
+    } else {
+      const newKey = UUID();
+      impotencyKeys[url] = newKey;
+      modifiedArgs.headers['X-Idempotency-Key'] = newKey;
+    }
   }
 
   // Execute the request
@@ -100,6 +98,7 @@ const baseQueryWithInterceptors: BaseQueryFn<
     }
     // return { error: response };
   }
+  delete impotencyKeys[url];
   return result;
 };
 
