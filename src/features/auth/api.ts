@@ -1,6 +1,7 @@
-import { BaseApi } from '@/app/api/baseApi';
 import type { LoginRequest, SignupPayload } from './type';
 import { transformResponse } from '@/app/api/apiHelper';
+import { logout } from './authSlice';
+import { BaseApi } from '@/app/api/baseApi';
 
 const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['token'],
@@ -24,9 +25,19 @@ export const authApi = enhancedApi.injectEndpoints({
     }),
     logout: build.mutation({
       query: () => ({
-        url: '/api/Account/Logout',
-        method: 'GET',
+        url: '/api/Authentication/Logout',
+        method: 'POST',
+        skipIdempotencyKey: true,
       }),
+
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(logout());
+        } catch {
+          console.log('logout fail');
+        }
+      },
     }),
   }),
 });
