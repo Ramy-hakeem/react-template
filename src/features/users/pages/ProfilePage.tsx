@@ -34,6 +34,7 @@ export default function ProfilePage() {
       </div>
     );
   }
+  console.log('role', data?.roles);
   // Error state
   if (error || !data) {
     return (
@@ -77,7 +78,7 @@ export default function ProfilePage() {
                 <Button
                   variant="ghost"
                   size={'icon'}
-                  onClick={() => copyToClipboard(data.userName, 'username')}
+                  onClick={() => copyToClipboard(data.userName ?? '', 'username')}
                 >
                   {copiedField === 'username' ? (
                     <CheckCircle className="h-4 w-4 text-emerald-600" />
@@ -160,10 +161,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="font-medium text-slate-800">{role.name}</p>
                     <p className="text-xs text-slate-500 flex items-center gap-1">
-                      Role ID:
-                      {role.id || (
-                        <HelpCircle className="h-3 w-3 text-slate-400" />
-                      )}
+                      Role name from API
                     </p>
                   </div>
                 </div>

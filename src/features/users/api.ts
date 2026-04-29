@@ -15,6 +15,7 @@ import {
 const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['users', 'currentUser', 'user'],
 });
+
 export const usersApi = enhancedApi.injectEndpoints({
   endpoints: (build) => ({
     getCurrentUser: build.query<UserData, null>({
@@ -24,22 +25,34 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       providesTags: ['currentUser'],
       transformResponse,
-      transformErrorResponse: transformErrorResponse,
+      transformErrorResponse,
     }),
+
+    getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
+    query: (body) => ({
+      url: '/api/Account/list',
+      method: 'POST',
+      body,
+    }),
+    providesTags: ['users'],
+    transformErrorResponse,
+  }),
+
     updateProfile: build.mutation<UserData, UpdateProfilePayload>({
       query: (body) => ({
         url: '/api/Account/UpdateUser',
         method: 'PATCH',
         body,
       }),
-      invalidatesTags: invalidateOnSuccess(['user']),
+      invalidatesTags: invalidateOnSuccess(['user', 'users']),
       transformResponse,
+      transformErrorResponse,
     }),
     changePassword: build.mutation<null, ChangePasswordPayload>({
-      query: (id) => ({
+      query: (body) => ({
         url: '/api/Account/ChangeUserPassword',
         method: 'POST',
-        body: { id },
+        body,
       }),
     }),
     getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
@@ -83,6 +96,7 @@ export const usersApi = enhancedApi.injectEndpoints({
         method: 'DELETE',
         body: { id },
       }),
+      transformErrorResponse,
       invalidatesTags: invalidateOnSuccess(['users']),
     }),
   }),

@@ -5,25 +5,35 @@ import type {
 } from './validationSchemas';
 
 export interface UserData {
-  userName: string;
+  userName?: string;
   name: string;
   email: string;
-  dateOfBirth: string;
-  gender: string;
+  dateOfBirth?: string;
+  gender?: string;
   isActive: boolean;
-  userType: string;
-  roles: {
-    id: string;
-    name: string;
-  }[];
+  userType?: string;
+  roles: { name: string }[] ;
   id: string;
   createdDate: string;
-  phoneNumber: string;
+  phoneNumber: string | null;
 }
-
 export interface GetAllUsersPayload {
   pageNumber: number;
   pageSize: number;
+  filters?: {
+    propertyName: string;
+    values: string[];
+    type: string;
+    operator: string;
+  }[];
+  sorts?: {
+    propertyName: string;
+    direction: "asc" | "desc" | "";
+  }[];
+  searchTerm?: string;
+  deltaToken?: string;
+  id?: string;
+  role?: string;
 }
 
 export type UpdateProfilePayload = z.infer<typeof updateProfileSchema>;

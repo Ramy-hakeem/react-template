@@ -26,11 +26,11 @@ export default function UpdateProfilePage() {
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
-      name: '',
-      id: '',
-      email: '',
-      dateOfBirth: '',
-      gender: '',
+      Name: '',
+      Email: '',
+      Gender: '',
+      DateOfBirth: '',
+      Id: '',
       UserName: '',
       PhoneNumber: '',
     },
@@ -39,11 +39,16 @@ export default function UpdateProfilePage() {
   useEffect(() => {
     if (data) {
       reset({
-        name: data.name || '',
-        id: data.id || '',
-        email: data.email || '',
-        dateOfBirth: data.dateOfBirth || '',
-        gender: data.gender === 'Male' ? '1' : data.gender === 'Female' ? '2' : data.gender || '',
+        Name: data.name || '',
+        Id: data.id || '',
+        Email: data.email || '',
+        DateOfBirth: data.dateOfBirth || '',
+        Gender:
+          data.gender === 'Male'
+            ? '1'
+            : data.gender === 'Female'
+              ? '2'
+              : data.gender || '',
         UserName: data.userName || '',
         PhoneNumber: data.phoneNumber || '',
       });
@@ -55,7 +60,9 @@ export default function UpdateProfilePage() {
       await updateProfile(formData).unwrap();
       navigate('/profile');
     } catch (err: any) {
-      setError('root', { message: err?.data?.message || 'Failed to update profile' });
+      setError('root', {
+        message: err?.data?.message || 'Failed to update profile',
+      });
     }
   };
 
@@ -88,62 +95,23 @@ export default function UpdateProfilePage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-        <h1 className="text-2xl font-semibold text-slate-800 mb-6">Update Profile</h1>
+        <h1 className="text-2xl font-semibold text-slate-800 mb-6">
+          Update Profile
+        </h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <input type="hidden" {...register('id')} />
+          <input type="hidden" {...register('Id')} />
           <Field>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="Name">Name</Label>
             <Input
-              id="name"
-              {...register('name')}
+              id="Name"
+              {...register('Name')}
               placeholder="Enter your name"
             />
-            {errors.name && (
-              <p className="text-red-600 text-sm">{errors.name.message}</p>
+            {errors.Name && (
+              <p className="text-red-600 text-sm">{errors.Name.message}</p>
             )}
           </Field>
-          <Field>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              {...register('email')}
-              placeholder="Enter your email"
-              disabled
-              className="bg-slate-100 text-slate-500 cursor-not-allowed"
-            />
-            {errors.email && (
-              <p className="text-red-600 text-sm">{errors.email.message}</p>
-            )}
-          </Field>
-          <Field>
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
-            <Input
-              id="dateOfBirth"
-              type="date"
-              {...register('dateOfBirth')}
-              placeholder="Enter your date of birth"
-            />
-            {errors.dateOfBirth && (
-              <p className="text-red-600 text-sm">{errors.dateOfBirth.message}</p>
-            )}
-          </Field>
-          <Field>
-            <Label htmlFor="gender">Gender</Label>
-            <select
-              id="gender"
-              {...register('gender')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="">Select your gender</option>
-              <option value="1">Male</option>
-              <option value="2">Female</option>
-            </select>
-            {errors.gender && (
-              <p className="text-red-600 text-sm">{errors.gender.message}</p>
-            )}
-          </Field>
-          <Field>
+                    <Field>
             <Label htmlFor="UserName">UserName</Label>
             <Input
               id="UserName"
@@ -157,6 +125,50 @@ export default function UpdateProfilePage() {
             )}
           </Field>
           <Field>
+            <Label htmlFor="Email">Email</Label>
+            <Input
+              id="Email"
+              type="email"
+              {...register('Email')}
+              placeholder="Enter your email"
+              disabled
+              className="bg-slate-100 text-slate-500"
+            />
+            {errors.Email && (
+              <p className="text-red-600 text-sm">{errors.Email.message}</p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="DateOfBirth">Date of Birth</Label>
+            <Input
+              id="DateOfBirth"
+              type="date"
+              {...register('DateOfBirth')}
+              placeholder="Enter your date of birth"
+            />
+            {errors.DateOfBirth && (
+              <p className="text-red-600 text-sm">
+                {errors.DateOfBirth.message}
+              </p>
+            )}
+          </Field>
+          <Field>
+            <Label htmlFor="Gender">Gender</Label>
+            <select
+              id="Gender"
+              {...register('Gender')}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">Select your gender</option>
+              <option value="1">Male</option>
+              <option value="2">Female</option>
+            </select>
+            {errors.Gender && (
+              <p className="text-red-600 text-sm">{errors.Gender.message}</p>
+            )}
+          </Field>
+
+          <Field>
             <Label htmlFor="PhoneNumber">Phone Number</Label>
             <Input
               id="PhoneNumber"
@@ -164,7 +176,9 @@ export default function UpdateProfilePage() {
               placeholder="Enter your phone number"
             />
             {errors.PhoneNumber && (
-              <p className="text-red-600 text-sm">{errors.PhoneNumber.message}</p>
+              <p className="text-red-600 text-sm">
+                {errors.PhoneNumber.message}
+              </p>
             )}
           </Field>
           {errors.root && (
@@ -174,7 +188,11 @@ export default function UpdateProfilePage() {
             <Button type="submit" disabled={isUpdating}>
               {isUpdating ? 'Updating...' : 'Update Profile'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/profile')}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/profile')}
+            >
               Cancel
             </Button>
           </div>

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 function Footer() {
   // fetching
   const { data: user } = useGetCurrentUserQuery(null);
-
   // store
   const { isAuthenticated } = useAuthStore();
   return (
@@ -34,12 +33,10 @@ function Footer() {
               <div className="flex items-center gap-1">
                 <span className="text-muted-foreground">Roles:</span>
                 <span className="font-medium">
-                  {user.roles.map((r) => r.name).join(', ')}
+                  {user.roles.map((role) => role.name).join(', ')}
                 </span>
               </div>
-              <div
-                className={`h-1.5 w-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}
-              />
+
             </div>
           )}
 
