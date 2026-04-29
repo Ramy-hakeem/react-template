@@ -22,6 +22,7 @@ export default function UpdateProfilePage() {
     handleSubmit,
     formState: { errors },
     setError,
+    watch,
     reset,
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
@@ -65,7 +66,8 @@ export default function UpdateProfilePage() {
       });
     }
   };
-
+  console.log('DateOfBirth', watch('DateOfBirth'));
+  console.log('PhoneNumber', watch('PhoneNumber'));
   if (isLoading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
@@ -111,7 +113,7 @@ export default function UpdateProfilePage() {
               <p className="text-red-600 text-sm">{errors.Name.message}</p>
             )}
           </Field>
-                    <Field>
+          <Field>
             <Label htmlFor="UserName">UserName</Label>
             <Input
               id="UserName"

@@ -30,14 +30,14 @@ export const usersApi = enhancedApi.injectEndpoints({
     }),
 
     getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
-    query: (body) => ({
-      url: '/api/Account/list',
-      method: 'POST',
-      body,
+      query: (body) => ({
+        url: '/api/Account/list',
+        method: 'POST',
+        body,
+      }),
+      providesTags: ['users'],
+      transformErrorResponse,
     }),
-    providesTags: ['users'],
-    transformErrorResponse,
-  }),
 
     updateProfile: build.mutation<UserData, UpdateProfilePayload>({
       query: (body) => ({
@@ -55,14 +55,6 @@ export const usersApi = enhancedApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-    }),
-    getAllUsers: build.query<ApiResponse<UserData[]>, GetAllUsersPayload>({
-      query: ({ pageNumber, pageSize }) => ({
-        url: '/api/Account/list',
-        method: 'POST',
-        body: { pageNumber, pageSize },
-      }),
-      providesTags: ['users'],
     }),
     getUser: build.query<UserData, string>({
       query: (id) => ({
@@ -90,7 +82,10 @@ export const usersApi = enhancedApi.injectEndpoints({
         body,
       }),
       transformErrorResponse,
-      invalidatesTags: invalidateOnSuccess(['users']),
+      invalidatesTags: (_res, _err, args) => {
+        console.log('args', args);
+        return [{ type: 'user', id: args.UserId }, { type: 'users' }];
+      },
     }),
   }),
 });
