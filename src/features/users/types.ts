@@ -11,6 +11,7 @@ export interface UserData {
   dateOfBirth: string;
   gender: string;
   isActive: boolean;
+  locked: boolean;
   userType: string;
   roles: {
     id: string;
@@ -27,7 +28,13 @@ export interface GetAllUsersPayload {
 }
 
 export type UpdateProfilePayload = z.infer<typeof updateProfileSchema>;
+
 export type ChangePasswordPayload = Omit<
   z.infer<typeof changePasswordSchema>,
   'confirmNewPassword'
 >;
+
+export interface UpdateStatusPayload {
+  UserId: string;
+  status: 'Active' | 'Inactive';
+}

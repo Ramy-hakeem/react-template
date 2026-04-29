@@ -4,6 +4,7 @@ import type {
   ChangePasswordPayload,
   GetAllUsersPayload,
   UpdateProfilePayload,
+  UpdateStatusPayload,
   UserData,
 } from './types';
 import {
@@ -69,19 +70,11 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       invalidatesTags: invalidateOnSuccess(['users']),
     }),
-    UpdateUserStatus: build.mutation<null, string>({
-      query: (id) => ({
-        url: '/api/Account/DeleteUser',
-        method: 'DELETE',
-        body: { id },
-      }),
-      invalidatesTags: invalidateOnSuccess(['users']),
-    }),
-    setPassword: build.mutation<null, string>({
-      query: (id) => ({
-        url: '/api/Account/DeleteUser',
-        method: 'DELETE',
-        body: { id },
+    UpdateUserStatus: build.mutation<null, UpdateStatusPayload>({
+      query: (body) => ({
+        url: '/api/Account/ChangeUserStatus',
+        method: 'PATCH',
+        body,
       }),
       invalidatesTags: invalidateOnSuccess(['users']),
     }),
@@ -97,5 +90,4 @@ export const {
   useChangePasswordMutation,
   useDeleteUserMutation,
   useUpdateUserStatusMutation,
-  useSetPasswordMutation,
 } = usersApi;

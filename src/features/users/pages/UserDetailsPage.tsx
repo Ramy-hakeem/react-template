@@ -1,79 +1,12 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
-import {
-  useGetUserQuery,
-  useUpdateUserStatusMutation,
-  useSetPasswordMutation,
-} from '../api';
+import { useGetUserQuery, useUpdateUserStatusMutation } from '../api';
+import moment from 'moment';
+import AlertDialog from '@/components/layout/alertDialog/AlertDialog';
 
 const UserDetailPage = () => {
   const { userId } = useParams();
-  const {
-    data: user,
-    isLoading,
-    error,
-    refetch,
-  } = useGetUserQuery(userId || '');
+  const { data: user, isLoading, error } = useGetUserQuery(userId || '');
   const [updateUserStatus] = useUpdateUserStatusMutation();
-  const [setPassword] = useSetPasswordMutation();
-
-  // State for modals
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const handleToggleStatus = async () => {
-    if (!user) return;
-
-    const action = user.isActive ? 'deactivate' : 'activate';
-    if (confirm(`Are you sure you want to ${action} ${user.userName}?`)) {
-      try {
-        setIsUpdating(true);
-        // await updateUserStatus({
-        //   id: user.id,
-        //   isActive: !user.isActive,
-        // }).unwrap();
-        refetch();
-      } catch (err) {
-        console.error('Failed to update user status:', err);
-        alert(`Failed to ${action} user. Please try again.`);
-      } finally {
-        setIsUpdating(false);
-      }
-    }
-  };
-
-  const handleSetPassword = async () => {
-    if (!user) return;
-
-    if (newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      alert('Password must be at least 6 characters long');
-      return;
-    }
-
-    try {
-      setIsUpdating(true);
-      // await setPassword({
-      //   id: user.id,
-      //   password: newPassword,
-      // }).unwrap();
-      alert('Password has been set successfully!');
-      setShowPasswordModal(false);
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err) {
-      console.error('Failed to set password:', err);
-      alert('Failed to set password. Please try again.');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -106,33 +39,45 @@ const UserDetailPage = () => {
               </p>
             </div>
             <div className="flex gap-2">
-              {/* Set Password Button */}
-              <button
-                onClick={() => setShowPasswordModal(true)}
-                disabled={isUpdating}
-                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+              <AlertDialog
+                triggerText={
+                  user.isActive ? 'Deactivate User' : 'Activate User'
+                }
+                triggerVariant={user.isActive ? 'destructive' : 'constructive'}
+                title={user.isActive ? 'deactivate' : 'activate'}
+                description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}?`}
+                onConfirm={() => {
+                  console.log('done ya bro');
+                  updateUserStatus({
+                    UserId: userId || '',
+                    status: user.isActive ? 'Inactive' : 'Active',
+                  });
+                }}
               >
-                Set Password
-              </button>
-
-              {/* Lock/Unlock Button */}
-              <button
-                onClick={handleToggleStatus}
-                disabled={isUpdating}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 ${
-                  user.isActive
-                    ? 'text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 focus:ring-red-500'
-                    : 'text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 focus:ring-green-500'
-                }`}
-              >
-                {user.isActive ? 'Lock User' : 'Unlock User'}
-              </button>
+                <input type="text" />
+              </AlertDialog>
+              <AlertDialog
+                triggerText={!user.locked ? 'Lock User' : 'Unlock User'}
+                triggerVariant={!user.locked ? 'destructive' : 'constructive'}
+                title={!user.locked ? 'deactivate' : 'activate'}
+                description={`Are you sure you want to ${!user.locked ? 'Unlock' : 'lock'} ${user.name}?`}
+                onConfirm={() => {
+                  console.log('done ya bro');
+                }}
+              />
             </div>
           </div>
         </div>
 
         {/* Details Grid */}
         <div className="px-6 py-4 space-y-3">
+          {/* Name */}
+          <div className="flex items-center py-2 border-b border-gray-50">
+            <div className="w-28 text-sm font-medium text-gray-500">Name</div>
+            <div className="flex-1 text-sm text-gray-800 font-mono">
+              {user.name}
+            </div>
+          </div>
           {/* Username */}
           <div className="flex items-center py-2 border-b border-gray-50">
             <div className="w-28 text-sm font-medium text-gray-500">
@@ -163,7 +108,25 @@ const UserDetailPage = () => {
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}
                 />
-                {user.isActive ? 'Active' : 'Locked'}
+                {user.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+          {/* Status */}
+          <div className="flex items-center py-2 border-b border-gray-50">
+            <div className="w-28 text-sm font-medium text-gray-500">Locked</div>
+            <div className="flex-1">
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  !user.locked
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-red-50 text-red-700'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${!user.locked ? 'bg-green-500' : 'bg-red-500'}`}
+                />
+                {user.locked ? 'Locked' : 'Unlocked'}
               </span>
             </div>
           </div>
@@ -213,88 +176,11 @@ const UserDetailPage = () => {
               Created
             </div>
             <div className="flex-1 text-sm text-gray-800">
-              {new Date(user.createdDate).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {moment(user.createdDate).format('MMMM D, YYYY, hh:mm A')}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Set Password Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Set Password for {user.userName}
-              </h3>
-            </div>
-
-            <div className="px-6 py-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter new password"
-                  autoComplete="new-password"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Confirm new password"
-                  autoComplete="new-password"
-                />
-              </div>
-
-              <div className="text-sm text-gray-500">
-                <p>Password requirements:</p>
-                <ul className="list-disc list-inside mt-1 space-y-0.5">
-                  <li>Minimum 6 characters</li>
-                  <li>Should be strong and unique</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowPasswordModal(false);
-                  setNewPassword('');
-                  setConfirmPassword('');
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSetPassword}
-                disabled={isUpdating || !newPassword || !confirmPassword}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isUpdating ? 'Setting...' : 'Set Password'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
