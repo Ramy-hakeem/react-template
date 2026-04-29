@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  id: z.uuid('Invalid ID'),
-  // email: z.email('Invalid email address'),
-  email: z.string('Invalid email address'),
-  dateOfBirth: z.string().date('Invalid date format (YYYY-MM-DD)'),
-  gender: z.string().regex(/^[12]$/, 'Please select a gender'),
+  Name: z.string().min(1, 'Name is required'),
+  Email: z.string().min(1, 'Email is required'),
+  Gender: z.string().regex(/^[12]$/, 'Please select a gender'),
+  DateOfBirth: z.string().date('Invalid date format (YYYY-MM-DD)'),
+  Id: z.uuid('Invalid ID'),
   UserName: z.string().min(1, 'UserName is required'),
+  // keep your current phone regex if this matches backend
   PhoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number'),
 });
 

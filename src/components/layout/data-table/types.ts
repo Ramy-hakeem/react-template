@@ -18,7 +18,7 @@ export type DataTableProps<TData> = {
   ) => void;
 
   handleDataChange?: (data: {
-    sortBy: { id: string; desc: boolean };
+    sortBy: { propertyName: string; direction: "desc" | "asc"|"" };
     searchTerm: string;
     pageIndex: number;
     pageSize: number;
