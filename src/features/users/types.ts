@@ -1,5 +1,8 @@
-import type z from "zod";
-import type { updateProfileSchema } from "./validationSchemas";
+import type z from 'zod';
+import type {
+  changePasswordSchema,
+  updateProfileSchema,
+} from './validationSchemas';
 
 export interface UserData {
   userName?: string;
@@ -34,3 +37,7 @@ export interface GetAllUsersPayload {
 }
 
 export type UpdateProfilePayload = z.infer<typeof updateProfileSchema>;
+export type ChangePasswordPayload = Omit<
+  z.infer<typeof changePasswordSchema>,
+  'confirmNewPassword'
+>;

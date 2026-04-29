@@ -215,22 +215,13 @@ export default function AddUserPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing up...
+                  Adding ...
                 </>
               ) : (
-                'Sign up'
+                'Add User'
               )}
             </button>
           </form>
-
-          <div className="mt-6 text-center text-sm">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-blue-500">
-                Sign in
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

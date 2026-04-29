@@ -8,6 +8,7 @@ import AllUsersPage from '@/features/users/pages/AllUsersPage';
 import ProtectedRoute from './providers/ProtectedRoute';
 import UpdateProfilePage from '@/features/users/pages/UpdateProfilePage';
 import ChangePasswordPage from '@/features/users/pages/ChangePasswordPage';
+import UserDetailsPage from '@/features/users/pages/UserDetailsPage';
 
 export const router = createBrowserRouter([
   // Public route
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: 'all-users',
         element: <AllUsersPage />,
+      },
+      {
+        path: 'all-users/:userId',
+        element: <UserDetailsPage />,
       },
     ],
   },
