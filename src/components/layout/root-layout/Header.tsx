@@ -113,9 +113,7 @@ function Header() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Roles</span>
                           <span className="font-medium">
-                            {user.roles
-                              .map((r: { name: string }) => r.name)
-                              .join(', ')}
+                            {user.roles.map((role) => role.name).join(', ')}
                           </span>
                         </div>
                         <div className="flex justify-between">

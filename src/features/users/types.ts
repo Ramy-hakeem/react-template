@@ -9,12 +9,11 @@ export interface UserData {
   gender?: string;
   isActive: boolean;
   userType?: string;
-  roles: string[];
+  roles: { name: string }[] ;
   id: string;
   createdDate: string;
   phoneNumber: string | null;
 }
-
 export interface GetAllUsersPayload {
   pageNumber: number;
   pageSize: number;
@@ -26,7 +25,7 @@ export interface GetAllUsersPayload {
   }[];
   sorts?: {
     propertyName: string;
-    direction: 'asc' | 'desc'|"";
+    direction: "asc" | "desc" | "";
   }[];
   searchTerm?: string;
   deltaToken?: string;

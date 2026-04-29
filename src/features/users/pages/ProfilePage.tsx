@@ -34,6 +34,7 @@ export default function ProfilePage() {
       </div>
     );
   }
+  console.log('role', data?.roles);
   // Error state
   if (error || !data) {
     return (
@@ -158,12 +159,9 @@ export default function ProfilePage() {
                     <Shield className="h-4 w-4 text-indigo-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-800">{role}</p>
+                    <p className="font-medium text-slate-800">{role.name}</p>
                     <p className="text-xs text-slate-500 flex items-center gap-1">
-                      Role ID:
-                      {role || (
-                        <HelpCircle className="h-3 w-3 text-slate-400" />
-                      )}
+                      Role name from API
                     </p>
                   </div>
                 </div>
