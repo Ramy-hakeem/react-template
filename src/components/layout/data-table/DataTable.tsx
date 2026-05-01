@@ -239,8 +239,6 @@ function DataTableComponent<TData>(
 
                                     // Third click on same column => clear sorting
                                     return {
-                                      propertyName: '',
-                                      direction: "",
                                     };
                                   });
                                 }}
