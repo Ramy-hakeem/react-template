@@ -34,6 +34,30 @@ import Searchbar from '../form/Searchbar';
 import { SkeletonTable } from '../skeleton/SkeletonTable';
 import { SkeletonText } from '../skeleton/SkeletonText';
 import type { DataTableProps, DataTableRef } from './types';
+import { getState } from '@/utils/localStorageHandler';
+
+type SortState = {
+  propertyName: string;
+  direction: 'asc' | 'desc' | '';
+};
+
+type BackendSort = {
+  propertyName: string;
+  direction: 'asc' | 'desc';
+};
+
+const buildBackendSorts = (sort: SortState): BackendSort[] => {
+  if (!sort.propertyName || !sort.direction) {
+    return [];
+  }
+
+  return [
+    {
+      propertyName: sort.propertyName,
+      direction: sort.direction,
+    },
+  ];
+};
 
 function DataTableComponent<TData>(
   {
@@ -46,7 +70,8 @@ function DataTableComponent<TData>(
   ref: React.ForwardedRef<DataTableRef>,
 ) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<{ propertyName: string; direction: "desc" | "asc" | "" }>({
+
+  const [sortBy, setSortBy] = useState<SortState>({
     propertyName: '',
     direction: '',
   });
@@ -54,11 +79,19 @@ function DataTableComponent<TData>(
   const table = useReactTable({
     data,
     columns,
+    pageCount: numberOfPages,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {
-      sorting: sortBy.propertyName ? [{ id: sortBy.propertyName, desc: sortBy.direction === 'desc' }] : [],
+      sorting: sortBy.propertyName
+        ? [
+            {
+              id: sortBy.propertyName,
+              desc: sortBy.direction === 'desc',
+            },
+          ]
+        : [],
     },
     manualSorting: true,
     manualPagination: true,
@@ -70,51 +103,59 @@ function DataTableComponent<TData>(
     },
   });
 
+  const tablePageIndex = table.getState().pagination.pageIndex; // 0-based for React Table
+  const pageNumber = tablePageIndex + 1; // 1-based for backend
+  const pageSize = table.getState().pagination.pageSize;
+
+  const sendDataChange = (
+    nextSort: SortState = sortBy,
+    nextPageNumber: number = pageNumber,
+    nextPageSize: number = pageSize,
+    nextSearchTerm: string = searchTerm,
+  ) => {
+    handleDataChange?.({
+      pageNumber: nextPageNumber,
+      pageSize: nextPageSize,
+      searchTerm: nextSearchTerm,
+      sorts: buildBackendSorts(nextSort),
+    });
+  };
+
   useImperativeHandle(
     ref,
     () => ({
       refresh: () => {
+        const emptySort: SortState = {
+          propertyName: '',
+          direction: '',
+        };
+
         table.setPageIndex(0);
         table.resetSorting();
         table.resetGlobalFilter();
+
         setSearchTerm('');
+        setSortBy(emptySort);
+
         handleDataChange?.({
-          sortBy: { propertyName: '', direction: "" },
-          searchTerm: '',
-          pageIndex: 1,
+          pageNumber: 1,
           pageSize: table.getState().pagination.pageSize,
+          searchTerm: "",
+          sorts: [],
         });
       },
-      getCurrentState: () => ({
-        searchTerm,
-        sortBy:{ propertyName: sortBy.propertyName, direction: sortBy.direction },
-        pageIndex: table.getState().pagination.pageIndex,
-        pageSize: table.getState().pagination.pageSize,
-      }),
-      resetSearch: () => {
-        setSearchTerm('');
-      },
-      resetSorting: () => {
-        setSortBy({ propertyName: '', direction: "" });
-      },
-      resetPagination: () => {
-        table.setPageIndex(0);
-      },
     }),
-    [searchTerm, sortBy, table, handleDataChange],
+    [table, handleDataChange],
   );
 
-  const pageIndex = table.getState().pagination.pageIndex+1
-  const pageSize = table.getState().pagination.pageSize;
-
   useEffect(() => {
-    handleDataChange?.({ sortBy, searchTerm, pageIndex, pageSize });
-  }, [sortBy, pageIndex, pageSize, searchTerm, handleDataChange]);
+    sendDataChange(sortBy, pageNumber, pageSize, searchTerm);
+  }, [pageNumber, pageSize]);
 
   const generatePaginationLinks = () => {
-    const currentPage = pageIndex;
+    const currentPage = tablePageIndex;
     const totalPages = numberOfPages || table.getPageCount();
-    const pages = [];
+    const pages: number[] = [];
 
     if (totalPages <= 5) {
       for (let i = 0; i < totalPages; i++) {
@@ -157,16 +198,11 @@ function DataTableComponent<TData>(
           onClick={
             handleDataChange
               ? () => {
-                  if (pageIndex !== 0) {
+                  if (tablePageIndex !== 0) {
                     table.setPageIndex(0);
-                  } else {
-                    handleDataChange({
-                      sortBy,
-                      searchTerm,
-                      pageIndex: 1,
-                      pageSize,
-                    });
                   }
+
+                  sendDataChange(sortBy, 1, pageSize, searchTerm);
                 }
               : undefined
           }
@@ -187,8 +223,8 @@ function DataTableComponent<TData>(
         <SkeletonTable columnsLength={columns.length} pageSize={pageSize} />
       ) : (
         <div className="relative overflow-hidden rounded-lg border bg-background shadow-sm">
-          <div className="overflow-x-auto ">
-            <Table className={` overflow-auto min-w-full`}>
+          <div className="overflow-x-auto">
+            <Table className="min-w-full overflow-auto">
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow
@@ -212,35 +248,44 @@ function DataTableComponent<TData>(
                                   header.column.columnDef.header,
                                   header.getContext(),
                                 )}
+
                             {header.column.getCanSort() && (
                               <Button
                                 onClick={() => {
-                                  setSortBy((currentSort) => {
-                                    const isSameColumn =
-                                      currentSort.propertyName === header.column.id;
+                                  const isSameColumn =
+                                    sortBy.propertyName === header.column.id;
 
-                                    table.setPageIndex(0);
+                                  let nextSort: SortState;
 
-                                    // First click on new column => asc
-                                    if (!isSameColumn) {
-                                      return {
-                                        propertyName: header.column.id,
-                                        direction: "asc",
-                                      };
-                                    }
-
-                                    // Second click on same column => desc
-                                    if (!currentSort.direction || currentSort.direction === 'asc') {
-                                      return {
-                                        propertyName: header.column.id,
-                                        direction: "desc",
-                                      };
-                                    }
-
-                                    // Third click on same column => clear sorting
-                                    return {
+                                  if (!isSameColumn) {
+                                    nextSort = {
+                                      propertyName: header.column.id,
+                                      direction: 'asc',
                                     };
-                                  });
+                                  } else if (
+                                    !sortBy.direction ||
+                                    sortBy.direction === 'asc'
+                                  ) {
+                                    nextSort = {
+                                      propertyName: header.column.id,
+                                      direction: 'desc',
+                                    };
+                                  } else {
+                                    nextSort = {
+                                      propertyName: '',
+                                      direction: '',
+                                    };
+                                  }
+
+                                  table.setPageIndex(0);
+                                  setSortBy(nextSort);
+
+                                  sendDataChange(
+                                    nextSort,
+                                    1,
+                                    pageSize,
+                                    searchTerm,
+                                  );
                                 }}
                                 variant="ghost"
                                 size="sm"
@@ -256,6 +301,7 @@ function DataTableComponent<TData>(
                               </Button>
                             )}
                           </div>
+
                           {header.column.getCanResize() && (
                             <div
                               onDoubleClick={() => header.column.resetSize()}
@@ -274,20 +320,21 @@ function DataTableComponent<TData>(
                   </TableRow>
                 ))}
               </TableHeader>
+
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row, index) => (
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
-                      className={`transition-colors hover:bg-muted/50  ${
+                      className={`transition-colors hover:bg-muted/50 ${
                         index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
                       }`}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className="px-4 py-3 text-left "
+                          className="px-4 py-3 text-left"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -307,7 +354,7 @@ function DataTableComponent<TData>(
                         <div className="text-lg">No results found</div>
                         <p className="text-sm">
                           Try adjusting your search or filter to find what
-                          you're looking for.
+                          you&apos;re looking for.
                         </p>
                       </div>
                     </TableCell>
@@ -315,20 +362,19 @@ function DataTableComponent<TData>(
                 )}
               </TableBody>
             </Table>
+
             {numberOfPages && (
               <div className="p-0">
-                <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between border-t bg-muted/50 font-medium [&>tr]:last:border-b-0">
+                <div className="flex flex-col gap-4 border-t bg-muted/50 p-4 font-medium sm:flex-row sm:items-center sm:justify-between [&>tr]:last:border-b-0">
                   {/* Page Info - Left */}
                   <div className="flex items-center justify-start">
                     {isLoading ? (
                       <SkeletonText lines={1} className="w-32" />
                     ) : (
                       <div className="text-sm text-muted-foreground">
-                        {numberOfPages && (
-                          <span className="ml-2 hidden md:inline">
-                            • Page {pageIndex + 1} of {numberOfPages}
-                          </span>
-                        )}
+                        <span className="ml-2 hidden md:inline">
+                          • Page {pageNumber} of {numberOfPages}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -343,7 +389,9 @@ function DataTableComponent<TData>(
                           {/* First Page */}
                           <PaginationItem className="hidden sm:block">
                             <PaginationLink
-                              onClick={() => table.setPageIndex(0)}
+                              onClick={() => {
+                                table.setPageIndex(0);
+                              }}
                               className={`cursor-pointer ${
                                 !table.getCanPreviousPage()
                                   ? 'pointer-events-none opacity-50'
@@ -358,7 +406,9 @@ function DataTableComponent<TData>(
                           {/* Previous */}
                           <PaginationItem>
                             <PaginationPrevious
-                              onClick={() => table.previousPage()}
+                              onClick={() => {
+                                table.previousPage();
+                              }}
                               className={`cursor-pointer ${
                                 !table.getCanPreviousPage()
                                   ? 'pointer-events-none opacity-50'
@@ -375,16 +425,20 @@ function DataTableComponent<TData>(
                                 <PaginationEllipsis />
                               ) : (
                                 <PaginationLink
-                                  onClick={() => table.setPageIndex(page)}
-                                  isActive={pageIndex === page}
-                                  className={`cursor-pointer transition-all duration-200 min-w-[2.5rem] ${
-                                    pageIndex === page
-                                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+                                  onClick={() => {
+                                    table.setPageIndex(page);
+                                  }}
+                                  isActive={tablePageIndex === page}
+                                  className={`min-w-[2.5rem] cursor-pointer transition-all duration-200 ${
+                                    tablePageIndex === page
+                                      ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
                                       : 'hover:bg-muted'
                                   }`}
                                   aria-label={`Go to page ${page + 1}`}
                                   aria-current={
-                                    pageIndex === page ? 'page' : undefined
+                                    tablePageIndex === page
+                                      ? 'page'
+                                      : undefined
                                   }
                                 >
                                   {page + 1}
@@ -396,12 +450,11 @@ function DataTableComponent<TData>(
                           {/* Next */}
                           <PaginationItem>
                             <PaginationNext
-                              onClick={() => table.nextPage()}
+                              onClick={() => {
+                                table.nextPage();
+                              }}
                               className={`cursor-pointer ${
-                                pageIndex >=
-                                (numberOfPages
-                                  ? numberOfPages - 1
-                                  : table.getPageCount() - 1)
+                                tablePageIndex >= numberOfPages - 1
                                   ? 'pointer-events-none opacity-50'
                                   : 'hover:bg-muted'
                               }`}
@@ -412,14 +465,11 @@ function DataTableComponent<TData>(
                           {/* Last Page */}
                           <PaginationItem className="hidden sm:block">
                             <PaginationLink
-                              onClick={() =>
-                                table.setPageIndex(numberOfPages - 1)
-                              }
+                              onClick={() => {
+                                table.setPageIndex(numberOfPages - 1);
+                              }}
                               className={`cursor-pointer ${
-                                pageIndex >=
-                                (numberOfPages
-                                  ? numberOfPages - 1
-                                  : table.getPageCount() - 1)
+                                tablePageIndex >= numberOfPages - 1
                                   ? 'pointer-events-none opacity-50'
                                   : 'hover:bg-muted'
                               }`}
@@ -446,7 +496,8 @@ function DataTableComponent<TData>(
                           type="number"
                           value={pageSize}
                           onChange={(e) => {
-                            const value = parseInt(e.target.value);
+                            const value = parseInt(e.target.value, 10);
+
                             if (value > 0 && value <= 1000) {
                               table.setPageSize(value);
                               table.setPageIndex(0);
@@ -468,8 +519,6 @@ function DataTableComponent<TData>(
           </div>
         </div>
       )}
-
-      {/* Pagination Section */}
     </div>
   );
 }

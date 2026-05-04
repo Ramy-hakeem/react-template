@@ -12,17 +12,21 @@ export type DataTableProps<TData> = {
   totalCount?: number;
   data: TData[];
   isLoading?: boolean;
+
   handleSort?: (
     columnId: string,
     isSorted: boolean | 'asc' | 'desc' | undefined,
   ) => void;
 
   handleDataChange?: (data: {
-    sortBy: { propertyName: string; direction: "desc" | "asc"|"" };
-    searchTerm: string;
-    pageIndex: number;
-    pageSize: number;
-  }) => void;
+  pageNumber: number;
+  pageSize: number;
+  searchTerm: string;
+  sorts: {
+    propertyName: string;
+    direction: 'asc' | 'desc';
+  }[];
+}) => void;
 };
 
 export type DataTableRef = {

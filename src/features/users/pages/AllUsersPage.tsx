@@ -119,12 +119,12 @@ const AllUsersPage: React.FC = () => {
       columns={columns}
       isLoading={isLoading}
       data={data?.data || []}
-      handleDataChange={({ pageIndex, pageSize, searchTerm, sortBy }) => {
+      handleDataChange={({ pageNumber, pageSize, searchTerm, sorts }) => {
         getAllUsers({
-          pageNumber: pageIndex,
+          pageNumber,
           pageSize,
           searchTerm,
-          sorts: sortBy ? [sortBy] : [],
+          sorts,
         });
       }}
       numberOfPages={data?.totalPages}
