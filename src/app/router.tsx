@@ -10,7 +10,8 @@ import UpdateProfilePage from '@/features/users/pages/UpdateProfilePage';
 import ChangePasswordPage from '@/features/users/pages/ChangePasswordPage';
 import UserDetailsPage from '@/features/users/pages/UserDetailsPage';
 import PermissionsPage from '@/features/Permissions/pages/permissionsPage';
-import AssignRolePage from '@/features/Permissions/pages/AssignRoleToUserPage';
+import AssignPermissionToUserPage from '@/features/Permissions/pages/AssignPermissionToUserPage';
+import AssignPermissionToRolePage from '@/features/Permissions/pages/AssignPermissionToRolePage';
 
 export const router = createBrowserRouter([
   // Public route
@@ -61,7 +62,11 @@ export const router = createBrowserRouter([
       },
       {
         path: 'all-Permissions/assign-to-user',
-        element: <AssignRolePage />,
+        element: <AssignPermissionToUserPage />,
+      },
+      {
+        path: 'all-Permissions/assign-to-role',
+        element: <AssignPermissionToRolePage />,
       },
     ],
   },

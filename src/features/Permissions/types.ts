@@ -3,3 +3,7 @@ export interface PermissionData {
   displayName: string;
   description: string | null;
 }
+export interface AssignPermissionToRolePayload {
+  roleId: string;
+  permissionIds: string[];
+}

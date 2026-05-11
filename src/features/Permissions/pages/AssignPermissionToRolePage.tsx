@@ -1,33 +1,55 @@
 import SearchableSelect from '@/components/layout/form/SearchableSelect';
-import { useGetAllPermissionsQuery } from '../api';
+import {
+  useAssignPermissionToRoleMutation,
+  useGetAllPermissionsQuery,
+} from '../api';
 import { useSearchParams } from 'react-router-dom';
-import { useGetAllUsersQuery } from '@/features/users/api';
-import type { UserData } from '@/features/users/types';
 import type { PermissionData } from '../types';
+import { useGetAllRolesQuery } from '@/features/roles/api';
+import type { RoleData } from '@/features/roles/types';
+import { useEffect } from 'react';
 
-export default function AssignRoleToUserPage() {
+export default function AssignPermissionToRolePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const permission = searchParams.get('permission') || '';
-  const user = searchParams.get('user') || '';
-  console.log(permission, user);
+  const role = searchParams.get('role') || '';
 
   const { data: permissionsData } = useGetAllPermissionsQuery({
     pageNumber: 1,
     pageSize: 10000,
   });
-  const { data: usersData } = useGetAllUsersQuery({
+  const { data: rolesData } = useGetAllRolesQuery({
     pageNumber: 1,
     pageSize: 10000,
   });
+  const [assignPermissionToRole, { isLoading, isSuccess, isError, error }] =
+    useAssignPermissionToRoleMutation();
 
-  if (!permissionsData || !usersData) {
+  // Clear all selections
+  const handleClearSelections = () => {
+    setSearchParams((prev) => {
+      prev.delete('permission');
+      prev.delete('role');
+      return prev;
+    });
+  };
+
+  // Clear selections on success
+  useEffect(() => {
+    if (isSuccess) {
+      handleClearSelections();
+    }
+  }, [isSuccess]);
+
+  if (!permissionsData || !rolesData) {
     return null;
   }
 
-  const users = usersData.data.map(({ id, name }: UserData) => ({
+  const roles = rolesData.data.map(({ id, name }: RoleData) => ({
     id,
     name,
   }));
+
   const permissions = permissionsData.data.map(({ id }: PermissionData) => ({
     id,
     name: id.replace('Permissions.', '').split('.').reverse().join(' '),
@@ -35,32 +57,32 @@ export default function AssignRoleToUserPage() {
 
   // Find current selections for display
   const currentPermission = permissions.find((p) => p.id === permission);
-  const currentUser = users.find((u) => u.id === user);
+  const currentRole = roles.find((u) => u.id === role);
 
   // Handle permission selection - updates URL params
-  const handlePermissionSelect = (id: string, name: string) => {
+  const handlePermissionSelect = (id: string) => {
     setSearchParams((prev) => {
       prev.set('permission', id);
       return prev;
     });
   };
 
-  // Handle user selection - updates URL params
-  const handleUserSelect = (id: string, name: string) => {
-    console.log(id, name);
+  // Handle role selection - updates URL params
+  const handleRoleSelect = (id: string) => {
     setSearchParams((prev) => {
-      prev.set('user', id);
+      prev.set('role', id);
       return prev;
     });
   };
 
-  // Clear all selections
-  const handleClearSelections = () => {
-    setSearchParams((prev) => {
-      prev.delete('permission');
-      prev.delete('user');
-      return prev;
-    });
+  // Handle the assignment submission
+  const handleAssignRole = () => {
+    if (permission && role) {
+      assignPermissionToRole({
+        roleId: role,
+        permissionIds: [permission],
+      });
+    }
   };
 
   return (
@@ -73,31 +95,81 @@ export default function AssignRoleToUserPage() {
               <div className="h-8 w-1 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full"></div>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  Assign Permission to User
+                  Assign Permission to Role
                 </h1>
                 <p className="text-gray-600 mt-1">
-                  Select a permission and a user to assign roles
+                  Select a permission and a role to assign permissions
                 </p>
               </div>
             </div>
 
             {/* Selection Status Badge */}
-            {(permission || user) && (
+            {(permission || role) && (
               <div className="flex gap-2">
                 {permission && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     Permission selected
                   </span>
                 )}
-                {user && (
+                {role && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    User selected
+                    Role selected
                   </span>
                 )}
               </div>
             )}
           </div>
         </div>
+
+        {/* Success Message */}
+        {isSuccess && currentPermission && currentRole && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 text-green-500 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <p className="text-green-800 font-medium">
+                Successfully assigned permission "{currentPermission.name}" to
+                role "{currentRole.name}"!
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {isError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 text-red-500 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-red-800 font-medium">
+                {error?.data?.message ||
+                  'Failed to assign permission. Please try again.'}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Main Card */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -153,7 +225,7 @@ export default function AssignRoleToUserPage() {
                 </div>
               </div>
 
-              {/* User Selector - Enhanced */}
+              {/* Role Selector - Enhanced */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -170,12 +242,12 @@ export default function AssignRoleToUserPage() {
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                       />
                     </svg>
-                    User
+                    Role
                     <span className="text-xs font-normal text-gray-400">
                       (Required)
                     </span>
                   </label>
-                  {currentUser && (
+                  {currentRole && (
                     <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                       ✓ Selected
                     </span>
@@ -183,54 +255,90 @@ export default function AssignRoleToUserPage() {
                 </div>
 
                 <SearchableSelect
-                  items={users}
-                  onSelect={handleUserSelect}
-                  placeholder="Search users by name..."
-                  value={user}
+                  items={roles}
+                  onSelect={handleRoleSelect}
+                  placeholder="Search roles by name..."
+                  value={role}
                 />
 
                 {/* Enhanced helper text */}
                 <div className="flex items-center justify-between text-xs">
                   <p className="text-gray-500">
-                    {users.length} users available
+                    {roles.length} roles available
                   </p>
-                  {currentUser && (
+                  {currentRole && (
                     <p className="text-green-600 truncate max-w-[200px]">
-                      Current: {currentUser.name}
+                      Current: {currentRole.name}
                     </p>
                   )}
                 </div>
               </div>
             </div>
 
+            {/* Assignment Summary - Show when both are selected */}
+            {permission && role && currentPermission && currentRole && (
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                  Assignment Summary
+                </h3>
+                <p className="text-sm text-blue-800">
+                  You are about to assign permission{' '}
+                  <strong className="font-semibold">
+                    "{currentPermission.name}"
+                  </strong>{' '}
+                  to role{' '}
+                  <strong className="font-semibold">
+                    "{currentRole.name}"
+                  </strong>
+                </p>
+              </div>
+            )}
+
             {/* Action Buttons Section */}
             <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3 sm:justify-end">
               <button
                 onClick={handleClearSelections}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                disabled={isLoading}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear Selections
               </button>
               <button
-                onClick={() => {
-                  if (permission && user) {
-                    alert(
-                      `Ready to assign permission to user!\n\nPermission: ${currentPermission?.name}\nUser: ${currentUser?.name}`,
-                    );
-                  } else {
-                    alert(
-                      'Please select both a permission and a user before proceeding.',
-                    );
-                  }
-                }}
-                disabled={!permission || !user}
+                onClick={handleAssignRole}
+                disabled={!permission || !role || isLoading}
                 className={`px-6 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                  permission && user
+                  permission && role && !isLoading
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 cursor-pointer'
                     : 'bg-gray-400 cursor-not-allowed'
                 }`}
               >
-                Assign Role
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Assigning...
+                  </span>
+                ) : (
+                  'Assign Permission'
+                )}
               </button>
             </div>
           </div>

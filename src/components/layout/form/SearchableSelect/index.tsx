@@ -19,9 +19,12 @@ export default function SearchableSelect({
 }: SearchableSelectProps) {
   const [search, setSearch] = React.useState('');
   const [isOpen, setIsOpen] = React.useState(false);
-  const [hasInteracted, setHasInteracted] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Track previous value to detect external changes
+  const prevValueRef = React.useRef(value);
+  const isInitialMount = React.useRef(true);
 
   // Find the selected item based on value prop
   const selectedItem = React.useMemo(() => {
@@ -29,24 +32,30 @@ export default function SearchableSelect({
     return items.find((item) => item.id === value);
   }, [items, value]);
 
-  // Update search when value prop changes (for external control)
+  // Handle initial value and external changes
   React.useEffect(() => {
-    if (selectedItem && !hasInteracted) {
-      setSearch(selectedItem.name);
-    } else if (!value) {
-      setSearch('');
-      setHasInteracted(false);
+    if (isInitialMount.current) {
+      // Set initial search value from selected item
+      if (selectedItem) {
+        setSearch(selectedItem.name);
+      }
+      isInitialMount.current = false;
+      prevValueRef.current = value;
+      return;
     }
-  }, [selectedItem, value, hasInteracted]);
 
-  // Reset hasInteracted when value changes externally
-  React.useEffect(() => {
-    if (!value) {
-      setHasInteracted(false);
+    // Check if value changed externally (not from this component)
+    if (prevValueRef.current !== value) {
+      if (selectedItem) {
+        setSearch(selectedItem.name);
+      } else if (!value) {
+        setSearch('');
+      }
+      prevValueRef.current = value;
     }
-  }, [value]);
+  }, [selectedItem, value]);
 
-  // Filter items based on search input (real-time)
+  // Filter items based on search input
   const filteredItems = React.useMemo(() => {
     if (!search.trim()) return items;
     return items.filter((item) =>
@@ -76,6 +85,35 @@ export default function SearchableSelect({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleSelect = (item: { id: string; name: string }) => {
+    setSearch(item.name);
+    onSelect(item.id, item.name);
+    setIsOpen(false);
+    inputRef.current?.blur();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearch(newValue);
+    setIsOpen(true);
+
+    // If user is typing, clear the external selection
+    if (value) {
+      onSelect('', '');
+    }
+  };
+
+  const handleFocus = () => {
+    setIsOpen(true);
+  };
+
+  const handleClear = () => {
+    setSearch('');
+    onSelect('', '');
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
@@ -84,37 +122,6 @@ export default function SearchableSelect({
     } else if (e.key === 'Enter' && displayItems.length === 1) {
       handleSelect(displayItems[0]);
     }
-  };
-
-  const handleSelect = (item: { id: string; name: string }) => {
-    setSearch(item.name);
-    onSelect(item.id, item.name);
-    setIsOpen(false);
-    setHasInteracted(true);
-    inputRef.current?.blur();
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    setIsOpen(true);
-    setHasInteracted(true);
-  };
-
-  const handleFocus = () => {
-    setIsOpen(true);
-    // If there's a selected item but user is typing, show filtered results
-    if (selectedItem && !hasInteracted) {
-      setSearch('');
-    }
-  };
-
-  const handleClear = () => {
-    setSearch('');
-    onSelect('', '');
-    setHasInteracted(false);
-    setIsOpen(false);
-    inputRef.current?.focus();
   };
 
   return (
@@ -130,9 +137,7 @@ export default function SearchableSelect({
           placeholder={placeholder}
           className={cn(
             'w-full pr-8',
-            selectedItem &&
-              !hasInteracted &&
-              'border-green-500 focus:border-green-500',
+            selectedItem && 'border-green-500 focus:border-green-500',
           )}
         />
 
@@ -256,7 +261,7 @@ export default function SearchableSelect({
       )}
 
       {/* Selected item indicator */}
-      {selectedItem && !hasInteracted && (
+      {selectedItem && (
         <div className="absolute -top-2 left-2 px-1 text-xs text-green-600 bg-white">
           Selected
         </div>
