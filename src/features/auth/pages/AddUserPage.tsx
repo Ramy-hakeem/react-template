@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { signupSchema } from '../validationSchemas';

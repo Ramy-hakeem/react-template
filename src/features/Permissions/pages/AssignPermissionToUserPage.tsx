@@ -9,6 +9,14 @@ import type { UserData } from '@/features/users/types';
 import type { PermissionData } from '../types';
 import { useEffect } from 'react';
 
+type PermissionPageError = {
+  data?: { message?: string };
+};
+
+const getPermissionPageErrorMessage = (error: unknown) =>
+  (error as PermissionPageError)?.data?.message ||
+  'Failed to assign permission. Please try again.';
+
 export default function AssignPermissionToUserPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const permission = searchParams.get('permission') || '';
@@ -163,8 +171,7 @@ export default function AssignPermissionToUserPage() {
                 />
               </svg>
               <p className="text-red-800 font-medium">
-                {error?.data?.message ||
-                  'Failed to assign permission. Please try again.'}
+                {getPermissionPageErrorMessage(error)}
               </p>
             </div>
           </div>

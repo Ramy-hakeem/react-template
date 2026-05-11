@@ -16,6 +16,9 @@ function Header() {
   const navigation = [
     { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },
+    { name: 'Users', href: '/all-users' },
+    { name: 'Permissions', href: '/all-Permissions' },
+    { name: 'Roles', href: '/roles' },
   ];
 
   if (isLoading) {
