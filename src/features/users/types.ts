@@ -13,6 +13,7 @@ export interface UserData {
   isActive: boolean;
   locked: boolean;
   userType: string;
+  status: string;
   roles: {
     id: string;
     name: string;

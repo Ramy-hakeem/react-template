@@ -4,7 +4,7 @@ import {
   CheckCircle,
   Circle,
   Copy,
-  HelpCircle,
+  Key,
   Loader2,
   Lock,
   Shield,
@@ -49,7 +49,7 @@ export default function ProfilePage() {
           <p className="text-slate-500 mb-4">
             {(error as { data?: { message?: string } })?.data?.message ||
               'Unable to fetch user profile data. Please try again later.'}
-          </p> 
+          </p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
       </div>
@@ -66,7 +66,6 @@ export default function ProfilePage() {
               <User className="h-5 w-5 text-indigo-600" />
               Personal Information
             </h3>
-          
           </div>
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-slate-100">
@@ -78,7 +77,9 @@ export default function ProfilePage() {
                 <Button
                   variant="ghost"
                   size={'icon'}
-                  onClick={() => copyToClipboard(data.userName ?? '', 'username')}
+                  onClick={() =>
+                    copyToClipboard(data.userName ?? '', 'username')
+                  }
                 >
                   {copiedField === 'username' ? (
                     <CheckCircle className="h-4 w-4 text-emerald-600" />
@@ -252,6 +253,18 @@ export default function ProfilePage() {
                 <Users className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
                 <span className="text-sm text-slate-600 group-hover:text-indigo-600">
                   Users
+                </span>
+              </Link>
+            </Button>
+            <Button
+              variant={'ghost'}
+              size={'lg'}
+              className="w-full  hover:bg-slate-50 transition-colors flex justify-start items-center gap-3 group"
+            >
+              <Link to={'/all-Permissions'} className="flex gap-3 items-center">
+                <Key className="h-4 w-4 text-slate-400 group-hover:text-indigo-600" />
+                <span className="text-sm text-slate-600 group-hover:text-indigo-600">
+                  Permissions
                 </span>
               </Link>
             </Button>

@@ -9,6 +9,8 @@ import ProtectedRoute from './providers/ProtectedRoute';
 import UpdateProfilePage from '@/features/users/pages/UpdateProfilePage';
 import ChangePasswordPage from '@/features/users/pages/ChangePasswordPage';
 import UserDetailsPage from '@/features/users/pages/UserDetailsPage';
+import PermissionsPage from '@/features/Permissions/pages/permissionsPage';
+import AssignRolePage from '@/features/Permissions/pages/AssignRoleToUserPage';
 
 export const router = createBrowserRouter([
   // Public route
@@ -52,6 +54,14 @@ export const router = createBrowserRouter([
       {
         path: 'all-users/:userId',
         element: <UserDetailsPage />,
+      },
+      {
+        path: 'all-Permissions',
+        element: <PermissionsPage />,
+      },
+      {
+        path: 'all-Permissions/assign-to-user',
+        element: <AssignRolePage />,
       },
     ],
   },
