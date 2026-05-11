@@ -3,7 +3,6 @@ import {
   configureStore,
   type UnknownAction,
 } from '@reduxjs/toolkit';
-import logger from 'redux-logger';
 import authReducer, { logout } from '@/features/auth/authSlice';
 import { BaseApi } from './api/baseApi';
 

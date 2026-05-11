@@ -9,6 +9,14 @@ import { useGetAllRolesQuery } from '@/features/roles/api';
 import type { RoleData } from '@/features/roles/types';
 import { useEffect } from 'react';
 
+type PermissionPageError = {
+  data?: { message?: string };
+};
+
+const getPermissionPageErrorMessage = (error: unknown) =>
+  (error as PermissionPageError)?.data?.message ||
+  'Failed to assign permission. Please try again.';
+
 export default function AssignPermissionToRolePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const permission = searchParams.get('permission') || '';
@@ -164,8 +172,7 @@ export default function AssignPermissionToRolePage() {
                 />
               </svg>
               <p className="text-red-800 font-medium">
-                {error?.data?.message ||
-                  'Failed to assign permission. Please try again.'}
+                {getPermissionPageErrorMessage(error)}
               </p>
             </div>
           </div>

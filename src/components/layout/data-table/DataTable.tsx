@@ -34,7 +34,6 @@ import Searchbar from '../form/Searchbar';
 import { SkeletonTable } from '../skeleton/SkeletonTable';
 import { SkeletonText } from '../skeleton/SkeletonText';
 import type { DataTableProps, DataTableRef } from './types';
-import { getState } from '@/utils/localStorageHandler';
 
 type SortState = {
   propertyName: string;
