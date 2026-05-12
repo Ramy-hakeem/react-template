@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useLogoutMutation } from '@/features/auth/api';
 import { useAuthStore } from '@/features/auth/hooks';
+import NotificationBell from '@/features/notifications/components/NotificationBell';
 import { useGetCurrentUserQuery } from '@/features/users/api';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -54,6 +55,7 @@ function Header() {
           {/* User Actions */}
           {isAuthenticated && user && (
             <div className="flex items-center gap-4">
+              <NotificationBell />
               {/* User Info Dropdown */}
               <div className="relative group">
                 <Button
