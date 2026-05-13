@@ -47,7 +47,7 @@ const UserDetailPage = () => {
                 title={user.isActive ? 'deactivate' : 'activate'}
                 description={`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} ${user.name}?`}
                 onConfirm={() => {
-                  console.log('done ya bro');
+                  console.log('confirmed');
                   updateUserStatus({
                     UserId: userId || '',
                     status: user.isActive ? 'Inactive' : 'Active',
@@ -62,7 +62,7 @@ const UserDetailPage = () => {
                 title={!user.locked ? 'deactivate' : 'activate'}
                 description={`Are you sure you want to ${!user.locked ? 'Unlock' : 'lock'} ${user.name}?`}
                 onConfirm={() => {
-                  console.log('done ya bro');
+                  console.log('confirmed');
                 }}
               />
             </div>

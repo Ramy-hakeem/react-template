@@ -34,7 +34,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-  console.log('role', data?.roles);
   // Error state
   if (error || !data) {
     return (

@@ -83,7 +83,6 @@ export const usersApi = enhancedApi.injectEndpoints({
       }),
       transformErrorResponse,
       invalidatesTags: (_res, _err, args) => {
-        console.log('args', args);
         return [{ type: 'user', id: args.UserId }, { type: 'users' }];
       },
     }),

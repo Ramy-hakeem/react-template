@@ -29,6 +29,12 @@ export default defineConfig({
         secure: false, // Accept self-signed certs from backend
         cookieDomainRewrite: 'localhost',
       },
+      '/notificationHub': {
+        target: 'https://localhost:7260',
+        changeOrigin: true,
+        secure: false,
+        ws: true, // ✅ Enable WebSocket proxying
+      },
     },
   },
 });
