@@ -1,17 +1,15 @@
 import { BaseApi } from '@/app/api/baseApi';
-import type { GetListPayload } from '@/types';
+import UUID from '@/utils/generateUUID';
+import {
+  HttpTransportType,
+  HubConnectionBuilder,
+  LogLevel,
+} from '@microsoft/signalr';
 import type {
   Notification,
   NotificationApiResponse,
   NotificationsPayload,
 } from './types';
-import {
-  HubConnectionBuilder,
-  LogLevel,
-  HttpTransportType,
-} from '@microsoft/signalr';
-import UUID from '@/utils/generateUUID';
-import { useAuthStore } from '../auth/hooks';
 
 const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['notifications'],
