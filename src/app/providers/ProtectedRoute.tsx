@@ -14,5 +14,5 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <RootLayout>{children ? <>children</> : <Outlet />}</RootLayout>;
+  return <RootLayout>{children || <Outlet />}</RootLayout>;
 }

@@ -23,7 +23,7 @@ const NotificationBell: React.FC = () => {
     searchTerm: '',
     filters: [],
     sorts: [],
-    token,
+    token: token || '',
   });
 
   if (isLoading) {
