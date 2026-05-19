@@ -1,14 +1,42 @@
-import { useGetCurrentUserQuery } from '@/features/users/api';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../api';
 import { useAuthStore } from '../hooks';
 import type { LoginRequest } from '../type';
 
+function getLoginErrorMessage(error: unknown) {
+  const apiError = error as {
+    status?: number;
+    error?: string;
+    data?: {
+      errors?: string[];
+      message?: string;
+      errorCode?: string | number;
+    };
+  };
+
+  if (Array.isArray(apiError.data?.errors) && apiError.data.errors.length > 0) {
+    return apiError.data.errors.join(', ');
+  }
+
+  if (apiError.data?.message) {
+    return apiError.data.message;
+  }
+
+  if (apiError.status === 401) {
+    return 'Invalid username or password.';
+  }
+
+  if (apiError.status === 400) {
+    return 'Login request failed. Please check the entered data and try again.';
+  }
+
+  return apiError.error || 'Login failed. Please try again.';
+}
+
 export default function LoginPage() {
-  useGetCurrentUserQuery(null);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading: isLoginPending }] = useLoginMutation();
@@ -17,17 +45,37 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<LoginRequest>({
     defaultValues: {
       userName: 'admin',
       password: '123456',
+      forceLogin: false,
     },
   });
   const onSubmit = async (data: LoginRequest) => {
-    const res = await login(data);
-    setToken(res.data.data.token);
+    try {
+      const res = await login({
+        ...data,
+        forceLogin: data.forceLogin ?? false,
+      }).unwrap();
+
+      const token = res?.data?.token ?? res?.token;
+
+      if (!token) {
+        throw new Error('Login succeeded but no token was returned.');
+      }
+
+      setToken(token);
+      navigate('/', { replace: true });
+    } catch (error) {
+      setError('root', {
+        type: 'manual',
+        message: getLoginErrorMessage(error),
+      });
+    }
   };
-  const isLoading = isLoginPending || isSubmitting || token === 'initial-token';
+  const isLoading = isLoginPending || isSubmitting;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
@@ -38,8 +86,8 @@ export default function LoginPage() {
       </div>
     );
   }
-  if (isAuthenticated) {
-    navigate('/', { replace: true });
+  if (isAuthenticated && token) {
+    return <Navigate to="/" replace />;
   }
 
   return (

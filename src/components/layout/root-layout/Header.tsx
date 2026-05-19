@@ -15,12 +15,14 @@ type NavigationItem = {
 };
 
 function Header() {
+  //   store
+  const { isAuthenticated, token } = useAuthStore();
   //   fetching
-  const { data: user, isLoading } = useGetCurrentUserQuery(null);
+  const { data: user, isLoading } = useGetCurrentUserQuery(null, {
+    skip: !isAuthenticated || !token,
+  });
   const [logout] = useLogoutMutation();
   const { hasPermission } = usePermissions();
-  //   store
-  const { isAuthenticated } = useAuthStore();
   //   others
   const location = useLocation();
   const navigation: NavigationItem[] = [

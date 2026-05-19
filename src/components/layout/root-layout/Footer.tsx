@@ -3,10 +3,12 @@ import { useGetCurrentUserQuery } from '@/features/users/api';
 import { Link } from 'react-router-dom';
 
 function Footer() {
-  // fetching
-  const { data: user } = useGetCurrentUserQuery(null);
   // store
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
+  // fetching
+  const { data: user } = useGetCurrentUserQuery(null, {
+    skip: !isAuthenticated || !token,
+  });
   return (
     <footer className="w-full border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 py-6">

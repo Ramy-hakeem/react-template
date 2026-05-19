@@ -10,7 +10,8 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, token } = useAuthStore();
   const location = useLocation();
-  if (!isAuthenticated && token !== 'initial-token') {
+
+  if (!isAuthenticated || !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

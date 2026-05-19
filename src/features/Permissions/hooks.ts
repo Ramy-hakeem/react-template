@@ -1,14 +1,23 @@
 import { useMemo } from 'react';
 import { useGetMyPermissionsQuery } from './api';
 import type { PermissionId } from './constants';
+import { useAuthStore } from '@/features/auth/hooks';
 
 export type PermissionValue = PermissionId | string;
 
 export function usePermissions() {
-  const { data, isLoading, isFetching, isError } = useGetMyPermissionsQuery({
-    pageNumber: 1,
-    pageSize: 10000,
-  });
+  const { isAuthenticated, token } = useAuthStore();
+  const shouldFetchPermissions = isAuthenticated && Boolean(token);
+
+  const { data, isLoading, isFetching, isError } = useGetMyPermissionsQuery(
+    {
+      pageNumber: 1,
+      pageSize: 10000,
+    },
+    {
+      skip: !shouldFetchPermissions,
+    },
+  );
 
   const permissionIds = useMemo(
     () => new Set(data?.data.map((permission) => permission.id) || []),
@@ -29,8 +38,8 @@ export function usePermissions() {
 
   return {
     permissionIds,
-    isLoading: isLoading || isFetching,
-    isError,
+    isLoading: shouldFetchPermissions && (isLoading || isFetching),
+    isError: shouldFetchPermissions && isError,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
