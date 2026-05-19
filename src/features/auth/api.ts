@@ -12,7 +12,7 @@ export const authApi = enhancedApi.injectEndpoints({
       query: (credentials: LoginRequest) => ({
         url: '/api/Authentication/Login',
         method: 'POST',
-        body: credentials,
+        body: { ...credentials, forceLogin: true },
         transformResponse,
       }),
     }),

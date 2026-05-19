@@ -20,6 +20,7 @@ function Header() {
     { name: 'Users', href: '/all-users' },
     { name: 'Permissions', href: '/all-Permissions' },
     { name: 'Roles', href: '/roles' },
+    { name: 'Chat', href: '/chat' },
   ];
 
   if (isLoading) {
