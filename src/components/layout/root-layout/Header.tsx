@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { PERMISSIONS } from '@/features/Permissions/constants';
+import { usePermissions, type PermissionValue } from '@/features/Permissions/hooks';
 import { useLogoutMutation } from '@/features/auth/api';
 import { useAuthStore } from '@/features/auth/hooks';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
@@ -6,25 +8,51 @@ import { useGetCurrentUserQuery } from '@/features/users/api';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
+type NavigationItem = {
+  name: string;
+  href: string;
+  permission?: PermissionValue;
+};
+
 function Header() {
   //   fetching
   const { data: user, isLoading } = useGetCurrentUserQuery(null);
   const [logout] = useLogoutMutation();
+  const { hasPermission } = usePermissions();
   //   store
   const { isAuthenticated } = useAuthStore();
   //   others
   const location = useLocation();
-  const navigation = [
+  const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/' },
     { name: 'Profile', href: '/profile' },
-    { name: 'Users', href: '/all-users' },
-    { name: 'Permissions', href: '/all-Permissions' },
-    { name: 'Roles', href: '/roles' },
-    { name: 'Chat', href: '/chat' },
+    {
+      name: 'Users',
+      href: '/all-users',
+      permission: PERMISSIONS.users.view,
+    },
+    {
+      name: 'Permissions',
+      href: '/all-Permissions',
+      permission: PERMISSIONS.users.view,
+    },
+    {
+      name: 'Roles',
+      href: '/roles',
+      permission: PERMISSIONS.roles.view,
+    },
   ];
 
+  const visibleNavigation = navigation.filter((item) => {
+    if (!item.permission) {
+      return true;
+    }
+
+    return hasPermission(item.permission);
+  });
+
   if (isLoading) {
-    return;
+    return null;
   }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -38,7 +66,7 @@ function Header() {
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
-            {navigation.map((item) => (
+            {visibleNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}

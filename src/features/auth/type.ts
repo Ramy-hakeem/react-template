@@ -22,5 +22,4 @@ export type SignupPayload = Omit<SignupFormData, 'confirmPassword'>;
 export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
-  userId: string;
 }

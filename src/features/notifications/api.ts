@@ -1,5 +1,15 @@
 import { BaseApi } from '@/app/api/baseApi';
-import type { NotificationApiResponse, NotificationsPayload } from './types';
+import UUID from '@/utils/generateUUID';
+import {
+  HttpTransportType,
+  HubConnectionBuilder,
+  LogLevel,
+} from '@microsoft/signalr';
+import type {
+  Notification,
+  NotificationApiResponse,
+  NotificationsPayload,
+} from './types';
 
 const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['notifications'],
@@ -21,108 +31,69 @@ export const notificationsApi = enhancedApi.injectEndpoints({
         args,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved },
       ) {
-        let eventSource: EventSource | null = null;
+        // Get the JWT token from your auth system
         const token = args.token;
 
         if (!token) {
-          console.warn('No auth token found for SSE connection');
+          console.warn('No auth token found for SignalR connection');
         }
 
+        const connection = new HubConnectionBuilder()
+          .withUrl('/notificationHub', {
+            accessTokenFactory: () => token,
+            headers: {
+              'X-Idempotency-Key': UUID(),
+            },
+            transport: HttpTransportType.WebSockets,
+          })
+          .configureLogging(LogLevel.Information)
+          .withAutomaticReconnect()
+          .build();
+
         try {
+          // Register listeners BEFORE start()
+          connection.on('ReceiveNotification', (notification: Notification) => {
+            console.log('📨 New notification:', notification);
+            updateCachedData((draft) => {
+              if (draft?.data) {
+                draft.data.unshift(notification);
+                if (draft.totalCount !== undefined) {
+                  draft.totalCount += 1;
+                }
+              }
+            });
+          });
+
+          connection.onreconnecting((error) => {
+            console.log('SignalR reconnecting:', error);
+          });
+
+          connection.onreconnected((connectionId) => {
+            console.log('SignalR reconnected:', connectionId);
+          });
+
+          connection.onclose((error) => {
+            console.log('SignalR closed:', error);
+          });
+
+          // Start connection
+          await connection.start();
+          console.log('✅ SignalR connected!');
+          console.log('Connection state:', connection.state);
+          console.log('Connection ID:', connection.connectionId);
+
           // Wait for initial cache
           await cacheDataLoaded;
           console.log('Cache loaded');
-
-          // Create SSE connection with token in URL
-          const baseUrl = import.meta.env.PROD
-            ? import.meta.env.VITE_API_URL
-            : 'https://localhost:7260';
-
-          const sseUrl = `${baseUrl}/notifications/sse?access_token=${token}`;
-          console.log('Connecting to SSE:', sseUrl);
-
-          eventSource = new EventSource(sseUrl);
-
-          // Listen for notification events (adjust event name based on backend)
-          eventSource.addEventListener(
-            'DeleteNotification',
-            (event: MessageEvent) => {
-              try {
-                const data = JSON.parse(event.data);
-                console.log('📨 SSE message:', data);
-
-                const notification = data;
-                console.log('Parsed notification:', data);
-
-                updateCachedData((draft) => {
-                  if (draft?.data) {
-                    const originalLength = draft.data.length;
-                    draft.data = draft.data.filter(
-                      (n) => n.id !== notification.id,
-                    );
-
-                    if (draft.totalCount !== undefined) {
-                      const removedCount = originalLength - draft.data.length;
-                      draft.totalCount -= removedCount;
-                    }
-                  }
-                });
-              } catch (error) {
-                console.error('Error parsing SSE message:', error);
-              }
-            },
-          );
-          eventSource.addEventListener(
-            'ReceiveNotification',
-            (event: MessageEvent) => {
-              try {
-                const data = JSON.parse(event.data);
-                console.log('📨 SSE message:', data);
-
-                const notification = data;
-                console.log('Parsed notification:', data);
-                updateCachedData((draft) => {
-                  if (draft?.data) {
-                    // Check for duplicates
-                    console.log('draft is here ');
-                    const exists = draft.data.some(
-                      (n) => n.id === notification.id,
-                    );
-                    if (!exists) {
-                      draft.data.unshift(notification);
-                      if (draft.totalCount !== undefined) {
-                        draft.totalCount += 1;
-                      }
-                    }
-                  }
-                });
-              } catch (error) {
-                console.error('Error parsing SSE message:', error);
-              }
-            },
-          );
-
-          // Handle connection open
-          eventSource.onopen = () => {
-            console.log('✅ SSE connection established');
-          };
-
-          // Handle errors
-          eventSource.onerror = (error) => {
-            console.error('SSE connection error:', error);
-            if (eventSource) {
-              eventSource.close();
-            }
-          };
         } catch (error) {
-          console.error('SSE setup error:', error);
+          console.error('SignalR connection error:', error);
         }
 
         // Cleanup
         await cacheEntryRemoved;
-        if (eventSource) {
-          eventSource.close();
-          console.log('SSE connection closed');
+        if (connection) {
+          await connection.stop();
+          console.log('SignalR stopped');
         }
       },
     }),

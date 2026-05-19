@@ -6,6 +6,7 @@ import ProfilePage from '@/features/users/pages/ProfilePage';
 import { createBrowserRouter } from 'react-router-dom';
 import AllUsersPage from '@/features/users/pages/AllUsersPage';
 import ProtectedRoute from './providers/ProtectedRoute';
+import PermissionRoute from './providers/PermissionRoute';
 import UpdateProfilePage from '@/features/users/pages/UpdateProfilePage';
 import ChangePasswordPage from '@/features/users/pages/ChangePasswordPage';
 import UserDetailsPage from '@/features/users/pages/UserDetailsPage';
@@ -13,7 +14,7 @@ import PermissionsPage from '@/features/Permissions/pages/permissionsPage';
 import AssignPermissionToUserPage from '@/features/Permissions/pages/AssignPermissionToUserPage';
 import AssignPermissionToRolePage from '@/features/Permissions/pages/AssignPermissionToRolePage';
 import RolesManagerPage from '@/features/roles/pages/RolesManagerPage';
-import ChatPage from '@/features/chat/pages/ChatPage';
+import { PERMISSIONS } from '@/features/Permissions/constants';
 
 export const router = createBrowserRouter([
   // Public route
@@ -21,10 +22,7 @@ export const router = createBrowserRouter([
     path: 'login',
     element: <LoginPage />,
   },
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
+
   // Protected routes
   {
     path: '/',
@@ -47,37 +45,68 @@ export const router = createBrowserRouter([
         element: <ChangePasswordPage />,
       },
       {
-        path: 'add-user',
-        element: <AddUserPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.users.edit]} />,
+        children: [
+          {
+            path: 'add-user',
+            element: <AddUserPage />,
+          },
+        ],
       },
       {
-        path: 'all-users',
-        element: <AllUsersPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.users.view]} />,
+        children: [
+          {
+            path: 'all-users',
+            element: <AllUsersPage />,
+          },
+          {
+            path: 'all-users/:userId',
+            element: <UserDetailsPage />,
+          },
+        ],
       },
       {
-        path: 'all-users/:userId',
-        element: <UserDetailsPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.users.view]} />,
+        children: [
+          {
+            path: 'all-Permissions',
+            element: <PermissionsPage />,
+          },
+        ],
       },
       {
-        path: 'all-Permissions',
-        element: <PermissionsPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.roles.view]} />,
+        children: [
+          {
+            path: 'roles',
+            element: <RolesManagerPage />,
+          },
+        ],
       },
       {
-        path: 'roles',
-        element: <RolesManagerPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.users.edit]} />,
+        children: [
+          {
+            path: 'all-Permissions/assign-to-user',
+            element: <AssignPermissionToUserPage />,
+          },
+        ],
       },
       {
-        path: 'all-Permissions/assign-to-user',
-        element: <AssignPermissionToUserPage />,
-      },
-      {
-        path: 'all-Permissions/assign-to-role',
-        element: <AssignPermissionToRolePage />,
-      },
-      {
-        path: '/chat',
-        element: <ChatPage />,
+        element: <PermissionRoute permissions={[PERMISSIONS.roles.edit]} />,
+        children: [
+          {
+            path: 'all-Permissions/assign-to-role',
+            element: <AssignPermissionToRolePage />,
+          },
+        ],
       },
     ],
+  },
+
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);

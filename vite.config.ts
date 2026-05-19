@@ -35,12 +35,6 @@ export default defineConfig({
         secure: false,
         ws: true, // ✅ Enable WebSocket proxying
       },
-      '/chatHub': {
-        target: 'https://localhost:7260',
-        changeOrigin: true,
-        secure: false,
-        ws: true, // ✅ Enable WebSocket proxying
-      },
     },
   },
 });

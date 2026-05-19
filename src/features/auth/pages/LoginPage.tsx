@@ -12,7 +12,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading: isLoginPending }] = useLoginMutation();
-  const { isAuthenticated, login: loginAction, token } = useAuthStore();
+  const { isAuthenticated, setToken, token } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -25,7 +25,7 @@ export default function LoginPage() {
   });
   const onSubmit = async (data: LoginRequest) => {
     const res = await login(data);
-    loginAction({ token: res.data.data.token, userId: res.data.data.userId });
+    setToken(res.data.data.token);
   };
   const isLoading = isLoginPending || isSubmitting || token === 'initial-token';
   if (isLoading) {

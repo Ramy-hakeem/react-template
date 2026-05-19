@@ -1,4 +1,4 @@
-import { logout, login } from '@/features/auth/authSlice';
+import { logout, setToken } from '@/features/auth/authSlice';
 import UUID from '@/utils/generateUUID';
 import {
   createApi,
@@ -70,19 +70,11 @@ const baseQueryWithInterceptors: BaseQueryFn<
 
           if (refreshResult.data) {
             // Extract new token from response
-            const { data } = refreshResult.data as {
-              data?: { token?: string; userId: string };
-            };
-            const newToken = data?.token;
-            const userId = data?.userId;
+            const newToken = (refreshResult.data as any)?.data?.token;
+
             if (newToken) {
               // Update Redux store with new token
-              api.dispatch(
-                login({
-                  token: newToken,
-                  userId: userId || '',
-                }),
-              );
+              api.dispatch(setToken(newToken));
 
               // Retry the original request
               result = await baseQuery(modifiedArgs, api, extraOptions);
