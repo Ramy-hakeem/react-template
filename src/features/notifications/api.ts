@@ -45,6 +45,34 @@ export const notificationsApi = enhancedApi.injectEndpoints({
 
           // Listen for notification events (adjust event name based on backend)
           eventSource.addEventListener(
+            'DeleteNotification',
+            (event: MessageEvent) => {
+              try {
+                const data = JSON.parse(event.data);
+                console.log('📨 SSE message:', data);
+
+                const notification = data;
+                console.log('Parsed notification:', data);
+
+                updateCachedData((draft) => {
+                  if (draft?.data) {
+                    const originalLength = draft.data.length;
+                    draft.data = draft.data.filter(
+                      (n) => n.id !== notification.id,
+                    );
+
+                    if (draft.totalCount !== undefined) {
+                      const removedCount = originalLength - draft.data.length;
+                      draft.totalCount -= removedCount;
+                    }
+                  }
+                });
+              } catch (error) {
+                console.error('Error parsing SSE message:', error);
+              }
+            },
+          );
+          eventSource.addEventListener(
             'ReceiveNotification',
             (event: MessageEvent) => {
               try {
