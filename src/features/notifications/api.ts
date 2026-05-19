@@ -63,6 +63,21 @@ export const notificationsApi = enhancedApi.injectEndpoints({
               }
             });
           });
+          connection.on('DeleteNotification', (notification: Notification) => {
+            updateCachedData((draft) => {
+              if (draft?.data) {
+                const index = draft.data.findIndex(
+                  (n) => n.id === notification.id,
+                );
+                if (index !== -1) {
+                  draft.data.splice(index, 1);
+                  if (draft.totalCount !== undefined) {
+                    draft.totalCount -= 1;
+                  }
+                }
+              }
+            });
+          });
 
           connection.onreconnecting((error) => {
             console.log('SignalR reconnecting:', error);
@@ -78,9 +93,6 @@ export const notificationsApi = enhancedApi.injectEndpoints({
 
           // Start connection
           await connection.start();
-          console.log('✅ SignalR connected!');
-          console.log('Connection state:', connection.state);
-          console.log('Connection ID:', connection.connectionId);
 
           // Wait for initial cache
           await cacheDataLoaded;

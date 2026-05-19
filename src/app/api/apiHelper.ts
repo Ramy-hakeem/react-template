@@ -1,6 +1,7 @@
 import type { ErrorApiResponse, ApiResponse } from './types';
 
 export function transformResponse<D>(res: ApiResponse<D>) {
+  console.log('after modified', res.data);
   return res.data;
 }
 

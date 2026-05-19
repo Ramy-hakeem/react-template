@@ -13,6 +13,7 @@ import PermissionsPage from '@/features/Permissions/pages/permissionsPage';
 import AssignPermissionToUserPage from '@/features/Permissions/pages/AssignPermissionToUserPage';
 import AssignPermissionToRolePage from '@/features/Permissions/pages/AssignPermissionToRolePage';
 import RolesManagerPage from '@/features/roles/pages/RolesManagerPage';
+import ChatPage from '@/features/chat/pages/ChatPage';
 
 export const router = createBrowserRouter([
   // Public route
@@ -72,6 +73,10 @@ export const router = createBrowserRouter([
       {
         path: 'all-Permissions/assign-to-role',
         element: <AssignPermissionToRolePage />,
+      },
+      {
+        path: '/chat',
+        element: <ChatPage />,
       },
     ],
   },
