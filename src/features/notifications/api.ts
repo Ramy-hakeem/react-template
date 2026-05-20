@@ -1,5 +1,6 @@
 import { BaseApi } from '@/app/api/baseApi';
 import type { NotificationApiResponse, NotificationsPayload } from './types';
+import UUID from '@/utils/generateUUID';
 
 const enhancedApi = BaseApi.enhanceEndpoints({
   addTagTypes: ['notifications'],
@@ -38,7 +39,8 @@ export const notificationsApi = enhancedApi.injectEndpoints({
             ? import.meta.env.VITE_API_URL
             : 'https://localhost:7260';
 
-          const sseUrl = `${baseUrl}/notifications/sse?access_token=${token}`;
+          const sseUrl = `${baseUrl}/event-center/sse?access_token=${token}&idempotencyKey=${UUID()}`;
+          eventSource = new EventSource(sseUrl);
           console.log('Connecting to SSE:', sseUrl);
 
           eventSource = new EventSource(sseUrl);
@@ -108,8 +110,16 @@ export const notificationsApi = enhancedApi.injectEndpoints({
           };
 
           // Handle errors
+          // Add more detailed error handling
           eventSource.onerror = (error) => {
             console.error('SSE connection error:', error);
+            console.log('ReadyState:', eventSource?.readyState);
+            // 0 = CONNECTING, 1 = OPEN, 2 = CLOSED
+
+            if (eventSource?.readyState === 2) {
+              console.log('Connection was closed');
+            }
+
             if (eventSource) {
               eventSource.close();
             }
